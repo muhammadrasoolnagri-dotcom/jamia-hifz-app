@@ -1,238 +1,366 @@
+
 <!DOCTYPE html>
 <html lang="ur" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>جامعہ حفظ و ناظرہ - ڈیجیٹل ڈائری</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Jameel+Noori+Nastaleeq&family=Readex+Pro:wght@400;600&display=swap');
-        body {
-            font-family: 'Readex Pro', 'Jameel Noori Nastaleeq', sans-serif;
-            background-color: #f3f4f6;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>جامعہ حفظ و ناظرہ مینجمنٹ</title>
+<style>
+:root{--primary:#176b50;--bg:#f3f6f5;--card:#fff;--text:#172b25;--border:#dce5e0}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Noto Nastaliq Urdu",sans-serif}
+header{background:var(--primary);color:white;padding:22px 16px}
+header h1{font-size:23px;margin:0 0 8px}
+header p{margin:0;font-size:13px}
+nav{display:flex;gap:8px;padding:12px;overflow-x:auto;background:white;border-bottom:1px solid var(--border)}
+button{cursor:pointer;border:0;border-radius:8px;padding:11px 15px;font-size:14px;font-weight:bold}
+nav button{background:#eaf2ee;color:#174d3c;white-space:nowrap}
+nav button.active,.primary{background:var(--primary);color:white}
+main{max-width:1100px;margin:auto;padding:16px}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+h2{font-size:19px;margin:0 0 15px}
+h3{font-size:16px;margin:0 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px}
+.stat{background:#edf6f1;border-radius:10px;padding:16px}
+.stat strong{display:block;font-size:27px;color:var(--primary);margin-top:8px}
+label{display:block;font-size:14px;margin-bottom:6px}
+input,select{width:100%;min-width:0;padding:11px;border:1px solid #cbd8d1;border-radius:8px;background:white;font-size:15px;margin-bottom:12px}
+.formgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.formgrid input,.formgrid select{margin-bottom:0}
+.primary{margin-top:12px}
+.secondary{background:#e8efeb;color:#174d3c}
+.danger{background:#ffeded;color:#a32121}
+.small{font-size:12px;color:#64746c}
+.student{border:1px solid var(--border);padding:13px;border-radius:10px;margin:12px 0;background:#fff}
+.student h3{margin-bottom:12px}
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:9px}
+.fields label{font-size:12px}
+.fields input,.fields select{margin-bottom:7px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.hidden{display:none!important}
+.notice{padding:12px;background:#fff8dd;border-radius:8px;font-size:13px;line-height:1.8}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{border:1px solid var(--border);padding:9px;text-align:right}
+th{background:#edf4f0}
+.tablewrap{overflow-x:auto}
+footer{text-align:center;padding:20px;font-size:12px;color:#6d7c75}
+@media(max-width:500px){main{padding:10px}.panel{padding:12px}header h1{font-size:20px}}
+</style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
+<body>
+<header>
+<h1>جامعہ حفظ و ناظرہ مینجمنٹ</h1>
+<p>حاضری، روزانہ ڈائری اور تعلیمی کارکردگی</p>
+</header>
 
-    <div class="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden p-6">
-        
-        <div class="text-center mb-6">
-            <h1 class="text-2xl font-bold text-emerald-800">جامعہ حفظ و ناظرہ</h1>
-            <p class="text-sm text-gray-500">روزانہ کارکردگی اور واٹس ایپ رپورٹنگ پورٹل</p>
-        </div>
+<nav>
+<button class="active" data-tab="dashboard">ڈیش بورڈ</button>
+<button data-tab="classes">کلاسیں</button>
+<button data-tab="students">طلبہ</button>
+<button data-tab="diary">روزانہ ڈائری</button>
+<button data-tab="history">ریکارڈ</button>
+</nav>
 
-        <!-- لاگ ان سیکشن -->
-        <div id="login-section" class="space-y-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">استاد کا نام / آئی ڈی</label>
-                <input type="text" id="teacher-name" placeholder="اپنا نام درج کریں" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600">
-            </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">کلاس منتخب کریں</label>
-                <select id="class-select" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600">
-                    <option value="حفظ کلاس اول">حفظ کلاس اول</option>
-                    <option value="حفظ کلاس دوم">حفظ کلاس دوم</option>
-                </select>
-            </div>
-            <button onclick="goToDiaryForm()" class="w-full bg-emerald-700 text-white py-2.5 rounded-lg font-semibold hover:bg-emerald-800 transition">
-                لاگ ان کریں
-            </button>
+<main>
+<section id="dashboard" class="tab">
+<div class="panel">
+<h2>مرکزی ڈیش بورڈ</h2>
+<div class="grid">
+<div class="stat">کل کلاسیں<strong id="classCount">0</strong></div>
+<div class="stat">کل طلبہ<strong id="studentCount">0</strong></div>
+<div class="stat">آج حاضر<strong id="presentCount">0</strong></div>
+<div class="stat">آج غیر حاضر<strong id="absentCount">0</strong></div>
+</div>
+</div>
+<div class="panel">
+<h3>آج کی کارکردگی</h3>
+<div id="todaySummary">ابھی تک کوئی ڈائری محفوظ نہیں ہوئی۔</div>
+</div>
+<div class="notice">
+یہ ابتدائی آزمائشی ورژن ہے۔ اس میں ڈیٹا اسی براؤزر میں محفوظ ہوتا ہے۔ ابھی اسے حقیقی طلبہ کے حساس ریکارڈ کے لیے استعمال نہ کریں۔ مشترکہ ڈیٹا بیس اور محفوظ لاگ اِن اگلے مرحلے میں شامل ہوں گے۔
+</div>
+</section>
 
-            <!-- نگران کے لیے نئی کلاس ایڈ کرنے کا بٹن -->
-            <div class="border-t pt-4 mt-4 text-center">
-                <button onclick="openAddClassModal()" class="text-sm text-emerald-700 font-semibold hover:underline">
-                    + نئی کلاس یا استاد شامل کریں (نگران پینل)
-                </button>
-            </div>
-        </div>
+<section id="classes" class="tab hidden">
+<div class="panel">
+<h2>نئی کلاس شامل کریں</h2>
+<label for="className">کلاس کا نام</label>
+<input id="className" placeholder="مثلاً: درجہ حفظ اول">
+<label for="teacherName">استاد کا نام</label>
+<input id="teacherName" placeholder="استاد کا مکمل نام">
+<button class="primary" onclick="addClass()">کلاس محفوظ کریں</button>
+</div>
+<div class="panel">
+<h2>موجودہ کلاسیں</h2>
+<div id="classList"></div>
+</div>
+</section>
 
-        <!-- ڈائری کا فارم -->
-        <div id="diary-section" class="hidden space-y-4">
-            <div class="flex justify-between items-center bg-emerald-50 p-3 rounded-lg border border-emerald-200">
-                <span id="display-teacher" class="text-sm font-bold text-emerald-900">استاد: ---</span>
-                <button onclick="logout()" class="text-xs text-red-600 underline">لاگ آؤٹ</button>
-            </div>
+<section id="students" class="tab hidden">
+<div class="panel">
+<h2>طالب علم کا اندراج</h2>
+<label for="studentName">طالب علم کا نام</label>
+<input id="studentName" placeholder="طالب علم کا نام">
+<label for="studentId">شناختی نمبر / رول نمبر</label>
+<input id="studentId" placeholder="مثلاً H-001">
+<label for="studentClass">کلاس منتخب کریں</label>
+<select id="studentClass"></select>
+<button class="primary" onclick="addStudent()">طالب علم محفوظ کریں</button>
+</div>
+<div class="panel">
+<h2>طلبہ کی فہرست</h2>
+<input id="studentSearch" placeholder="نام یا رول نمبر تلاش کریں" oninput="renderStudents()">
+<div id="studentList"></div>
+</div>
+</section>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">طالب علم کا نام</label>
-                <input type="text" id="student-name" placeholder="طالب علم کا نام لکھیں" class="w-full px-4 py-2 border rounded-lg text-sm">
-            </div>
+<section id="diary" class="tab hidden">
+<div class="panel">
+<h2>روزانہ کی ڈائری</h2>
+<label for="diaryClass">کلاس منتخب کریں</label>
+<select id="diaryClass" onchange="renderDiary()"></select>
+<label for="diaryDate">تاریخ</label>
+<input id="diaryDate" type="date">
+<div class="notice">ہر طالب علم کی حاضری منتخب کریں۔ حاضر طالب علم کے لیے سبق، سبقی اور منزل درج کریں۔ غیر حاضر طالب علم کا تعلیمی کام خالی رہ سکتا ہے۔</div>
+<div id="diaryStudents"></div>
+<button class="primary" onclick="saveDiary()">پوری کلاس کی ڈائری محفوظ کریں</button>
+</div>
+</section>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">والد کا واٹس ایپ نمبر (میسج کے لیے)</label>
-                <input type="text" id="whatsapp-no" placeholder="مثلاً 923001234567" class="w-full px-4 py-2 border rounded-lg text-sm">
-            </div>
+<section id="history" class="tab hidden">
+<div class="panel">
+<h2>محفوظ ریکارڈ</h2>
+<label for="historyClass">کلاس</label>
+<select id="historyClass" onchange="renderHistory()"></select>
+<label for="historyDate">تاریخ</label>
+<input id="historyDate" type="date" onchange="renderHistory()">
+<div id="historyResults"></div>
+<button class="secondary" onclick="exportCSV()">ریکارڈ CSV فائل میں حاصل کریں</button>
+</div>
+</section>
+</main>
 
-            <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">حاضری</label>
-                <select id="attendance" class="w-full px-4 py-2 border rounded-lg text-sm">
-                    <option value="حاضر">حاضر</option>
-                    <option value="غیر حاضر">غیر حاضر (چھٹی)</option>
-                </select>
-            </div>
+<footer>جامعہ حفظ و ناظرہ مینجمنٹ — ابتدائی آزمائشی ورژن</footer>
 
-            <!-- نیا سبق -->
-            <div class="border p-3 rounded-lg bg-gray-50 space-y-2">
-                <span class="font-bold text-sm text-gray-800">📖 نیا سبق</span>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="text-xs text-gray-600">لائنز کی تعداد</label>
-                        <input type="number" id="new-lesson-lines" placeholder="مثلاً 15" class="w-full px-3 py-1.5 border rounded text-sm">
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-600">کیفیت</label>
-                        <select id="new-lesson-quality" class="w-full px-3 py-1.5 border rounded text-sm">
-                            <option value="پکا (ممتاز)">پکا (ممتاز)</option>
-                            <option value="متوسط (کچا)">متوسط (کچا)</option>
-                            <option value="کمزور">کمزور</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
+<script>
+const KEY="jamia_hifz_demo_v1";
+let db;
+try {
+ db=JSON.parse(localStorage.getItem(KEY))||{classes:[],students:[],diaries:{}};
+} catch(e) {
+ db={classes:[],students:[],diaries:{}};
+}
 
-            <!-- سبقی سپارہ -->
-            <div class="border p-3 rounded-lg bg-gray-50 space-y-2">
-                <span class="font-bold text-sm text-gray-800">🔄 سبقی سپارہ</span>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="text-xs text-gray-600">سپارہ نمبر</label>
-                        <input type="number" id="sabqi-para-no" placeholder="مثلاً 27" class="w-full px-3 py-1.5 border rounded text-sm">
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-600">کیفیت</label>
-                        <select id="sabqi-quality" class="w-full px-3 py-1.5 border rounded text-sm">
-                            <option value="پکا">پکا</option>
-                            <option value="کچا">کچا</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
+const today=()=>new Date().toLocaleDateString("en-CA");
+document.getElementById("diaryDate").value=today();
+document.getElementById("historyDate").value=today();
 
-            <!-- منزلی سپارہ -->
-            <div class="border p-3 rounded-lg bg-gray-50 space-y-2">
-                <span class="font-bold text-sm text-gray-800">📚 منزلی سپارہ</span>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="text-xs text-gray-600">سپارہ نمبر</label>
-                        <input type="number" id="manzil-para-no" placeholder="مثلاً 24" class="w-full px-3 py-1.5 border rounded text-sm">
-                    </div>
-                    <div>
-                        <label class="text-xs text-gray-600">کیفیت</label>
-                        <select id="manzil-quality" class="w-full px-3 py-1.5 border rounded text-sm">
-                            <option value="پکا">پکا</option>
-                            <option value="کچا">کچا</option>
-                        </select>
-                    </div>
-                </div>
-            </div>
+function persist(){
+ localStorage.setItem(KEY,JSON.stringify(db));
+ renderAll();
+}
 
-            <button onclick="submitAndSendWhatsApp()" class="w-full bg-emerald-700 text-white py-2.5 rounded-lg font-semibold hover:bg-emerald-800 transition">
-                مففوظ کریں اور واٹس ایپ پر بھیجیں 📤
-            </button>
-        </div>
+function esc(v){
+ return String(v??"").replace(/[&<>"']/g,c=>({
+ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+ }[c]));
+}
 
-        <!-- نئی کلاس ایڈ کرنے کا ماڈل -->
-        <div id="add-class-modal" class="hidden space-y-4 border-t pt-4 mt-4 bg-gray-50 p-3 rounded-lg">
-            <h3 class="font-bold text-sm text-emerald-800">➕ نئی کلاس یا استاد کا اضافہ کریں</h3>
-            <div>
-                <label class="block text-xs text-gray-600 mb-1">نئی کلاس کا نام</label>
-                <input type="text" id="new-class-name" placeholder="مثلاً حفظ کلاس چہارم" class="w-full px-3 py-1.5 border rounded text-sm">
-            </div>
-            <div class="flex space-x-2 space-x-reverse">
-                <button onclick="addNewClass()" class="bg-emerald-600 text-white px-4 py-1.5 rounded text-xs font-semibold">شامل کریں</button>
-                <button onclick="closeAddClassModal()" class="bg-gray-300 text-gray-700 px-4 py-1.5 rounded text-xs">بند کریں</button>
-            </div>
-        </div>
+function addClass(){
+ const name=document.getElementById("className").value.trim();
+ const teacher=document.getElementById("teacherName").value.trim();
+ if(!name||!teacher){alert("کلاس اور استاد کا نام درج کریں۔");return;}
+ db.classes.push({id:crypto.randomUUID(),name,teacher});
+ document.getElementById("className").value="";
+ document.getElementById("teacherName").value="";
+ persist();
+}
 
-        <!-- کامیابی کا پیغام -->
-        <div id="success-msg" class="hidden text-center py-6 space-y-3">
-            <div class="text-4xl">✅</div>
-            <h2 class="text-lg font-bold text-emerald-800">ڈیٹا محفوظ ہو گیا اور واٹس ایپ کھول دیا گیا!</h2>
-            <button onclick="resetForm()" class="mt-4 px-4 py-2 bg-gray-200 text-gray-800 rounded-lg text-sm">دوسری انٹری کریں</button>
-        </div>
+function addStudent(){
+ const name=document.getElementById("studentName").value.trim();
+ const sid=document.getElementById("studentId").value.trim();
+ const classId=document.getElementById("studentClass").value;
+ if(!name||!sid||!classId){alert("تمام خانے پُر کریں۔");return;}
+ if(db.students.some(s=>s.sid.toLowerCase()===sid.toLowerCase())){
+  alert("یہ رول نمبر پہلے استعمال ہو چکا ہے۔");return;
+ }
+ db.students.push({id:crypto.randomUUID(),name,sid,classId});
+ document.getElementById("studentName").value="";
+ document.getElementById("studentId").value="";
+ persist();
+}
 
-    </div>
+function removeClass(id){
+ if(!confirm("کیا یہ کلاس اور اس کے طلبہ حذف کرنے ہیں؟"))return;
+ db.classes=db.classes.filter(c=>c.id!==id);
+ db.students=db.students.filter(s=>s.classId!==id);
+ persist();
+}
 
-    <script>
-        function goToDiaryForm() {
-            const teacherName = document.getElementById('teacher-name').value;
-            if(!teacherName) {
-                alert('براہ کرم استاد کا نام درج کریں');
-                return;
-            }
-            document.getElementById('display-teacher').innerText = `استاد: ${teacherName}`;
-            document.getElementById('login-section').classList.add('hidden');
-            document.getElementById('diary-section').classList.remove('hidden');
-        }
+function removeStudent(id){
+ if(!confirm("کیا اس طالب علم کو حذف کرنا ہے؟"))return;
+ db.students=db.students.filter(s=>s.id!==id);
+ persist();
+}
 
-        function openAddClassModal() {
-            document.getElementById('add-class-modal').classList.remove('hidden');
-        }
+function options(list,selected,placeholder){
+ return `<option value="">${placeholder}</option>`+list.map(x=>
+ `<option value="${esc(x.id)}" ${x.id===selected?"selected":""}>${esc(x.name)}</option>`
+ ).join("");
+}
 
-        function closeAddClassModal() {
-            document.getElementById('add-class-modal').classList.add('hidden');
-        }
+function renderSelectors(){
+ const c=document.getElementById("studentClass");
+ const d=document.getElementById("diaryClass");
+ const h=document.getElementById("historyClass");
+ const oldC=c.value,oldD=d.value,oldH=h.value;
+ c.innerHTML=options(db.classes,oldC,"کلاس منتخب کریں");
+ d.innerHTML=options(db.classes,oldD,"کلاس منتخب کریں");
+ h.innerHTML=options(db.classes,oldH,"تمام کلاسیں");
+}
 
-        function addNewClass() {
-            const className = document.getElementById('new-class-name').value;
-            if(!className) {
-                alert('براہ کرم کلاس کا نام لکھیں');
-                return;
-            }
-            const selectBox = document.getElementById('class-select');
-            const option = document.createElement('option');
-            option.value = className;
-            option.text = className;
-            selectBox.appendChild(option);
-            alert(`کامیابی کے ساتھ "${className}" شامل کر دی گئی ہے!`);
-            document.getElementById('new-class-name').value = '';
-            document.getElementById('add-class-modal').classList.add('hidden');
-        }
+function renderClasses(){
+ document.getElementById("classList").innerHTML=db.classes.length?db.classes.map(c=>{
+ const count=db.students.filter(s=>s.classId===c.id).length;
+ return `<div class="student"><div class="row"><div><h3>${esc(c.name)}</h3><div>استاد: ${esc(c.teacher)}</div><div class="small">طلبہ: ${count}</div></div><button class="danger" onclick="removeClass('${c.id}')">حذف</button></div></div>`;
+ }).join(""):"ابھی کوئی کلاس شامل نہیں کی گئی۔";
+}
 
-        function submitAndSendWhatsApp() {
-            const studentName = document.getElementById('student-name').value;
-            const whatsappNo = document.getElementById('whatsapp-no').value;
-            const attendance = document.getElementById('attendance').value;
-            const newLines = document.getElementById('new-lesson-lines').value;
-            const newQuality = document.getElementById('new-lesson-quality').value;
-            const sabqiNo = document.getElementById('sabqi-para-no').value;
-            const sabqiQuality = document.getElementById('sabqi-quality').value;
-            const manzilNo = document.getElementById('manzil-para-no').value;
-            const manzilQuality = document.getElementById('manzil-quality').value;
+function renderStudents(){
+ const q=document.getElementById("studentSearch").value.trim().toLowerCase();
+ const list=db.students.filter(s=>(s.name+" "+s.sid).toLowerCase().includes(q));
+ document.getElementById("studentList").innerHTML=list.length?list.map(s=>{
+ const c=db.classes.find(x=>x.id===s.classId);
+ return `<div class="student"><div class="row"><div><h3>${esc(s.name)}</h3><div>رول نمبر: ${esc(s.sid)}</div><div class="small">کلاس: ${esc(c?.name||"حذف شدہ کلاس")}</div></div><button class="danger" onclick="removeStudent('${s.id}')">حذف</button></div></div>`;
+ }).join(""):"کوئی طالب علم نہیں ملا۔";
+}
 
-            if(!studentName || !whatsappNo) {
-                alert('براہ کرم طالب علم کا نام اور واٹس ایپ نمبر لازمی درج کریں');
-                return;
-            }
+function studentFields(s){
+ return `<div class="student" data-student="${s.id}">
+ <h3>${esc(s.name)} <span class="small">(${esc(s.sid)})</span></h3>
+ <div class="fields">
+ <div><label>حاضری</label><select data-field="attendance">
+ <option value="">منتخب کریں</option><option value="present">حاضر</option><option value="absent">غیر حاضر</option></select></div>
+ <div><label>نئے سبق کی لائنیں</label><input type="number" min="0" data-field="lines" placeholder="مثلاً 15"></div>
+ <div><label>نئے سبق کی کیفیت</label><select data-field="newQuality"><option value="">منتخب کریں</option><option>پکا</option><option>متوسط</option><option>کمزور</option></select></div>
+ <div><label>سبقی سپارہ نمبر</label><input type="number" min="1" max="30" data-field="sabqi" placeholder="1 تا 30"></div>
+ <div><label>سبقی کیفیت</label><select data-field="sabqiQuality"><option value="">منتخب کریں</option><option>پکا</option><option>کچا</option></select></div>
+ <div><label>منزل سپارہ نمبر</label><input type="number" min="1" max="30" data-field="manzil" placeholder="1 تا 30"></div>
+ <div><label>منزل کیفیت</label><select data-field="manzilQuality"><option value="">منتخب کریں</option><option>پکا</option><option>کچا</option></select></div>
+ </div></div>`;
+}
 
-            // واٹس ایپ میسج کا متن تیار کرنا
-            const message = `بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ%0Aمحترم والدِ گرامی، السلام علیکم!%0Aآپ کے فرزند "${studentName}" کی آج کی کارکردگی درج ذیل ہے:%0A%0Aحاضری: ${attendance}%0A📖 نیا سبق: ${newLines} لائنیں (کیفیت: ${newQuality})%0A🔄 سبقی سپارہ (${sabqiNo} واں): ${sabqiQuality}%0A📚 منزلی سپارہ (${manzilNo} واں): ${manzilQuality}%0A%0Aجزاکم اللہ خیراً%0A— جامعہ حفظ و ناظرہ`;
+function renderDiary(){
+ const cid=document.getElementById("diaryClass").value;
+ const date=document.getElementById("diaryDate").value||today();
+ const students=db.students.filter(s=>s.classId===cid);
+ const existing=db.diaries[date]||{};
+ document.getElementById("diaryStudents").innerHTML=students.length?students.map(s=>{
+ const html=studentFields(s);
+ return html;
+ }).join(""):"اس کلاس میں طلبہ موجود نہیں۔ پہلے طلبہ کے حصے سے اندراج کریں۔";
+ students.forEach(s=>{
+ const old=existing[s.id];
+ if(!old)return;
+ const el=document.querySelector(`[data-student="${s.id}"]`);
+ if(!el)return;
+ Object.entries(old).forEach(([k,v])=>{
+ const input=el.querySelector(`[data-field="${k}"]`);
+ if(input)input.value=v;
+ });
+ });
+}
 
-            // واٹس ایپ لنک اوپن کرنا
-            const whatsappUrl = `https://wa.me/${whatsappNo}?text=${message}`;
-            window.open(whatsappUrl, '_blank');
+function saveDiary(){
+ const cid=document.getElementById("diaryClass").value;
+ const date=document.getElementById("diaryDate").value;
+ if(!cid||!date){alert("کلاس اور تاریخ منتخب کریں۔");return;}
+ const students=db.students.filter(s=>s.classId===cid);
+ if(!students.length){alert("اس کلاس میں طلبہ موجود نہیں۔");return;}
+ const records=[];
+ for(const s of students){
+  const el=document.querySelector(`[data-student="${s.id}"]`);
+  if(!el)continue;
+  const val=k=>el.querySelector(`[data-field="${k}"]`)?.value||"";
+  const attendance=val("attendance");
+  if(!attendance){alert(`${s.name}: حاضری منتخب کرنا لازمی ہے۔`);el.scrollIntoView({behavior:"smooth",block:"center"});return;}
+  if(attendance==="present"&&(!val("lines")||!val("newQuality")||!val("sabqi")||!val("sabqiQuality")||!val("manzil")||!val("manzilQuality"))){
+   alert(`${s.name}: حاضر طالب علم کے سبق، سبقی اور منزل کے تمام خانے پُر کریں۔`);
+   el.scrollIntoView({behavior:"smooth",block:"center"});return;
+  }
+  for(const k of ["sabqi","manzil"]){
+   const n=val(k);
+   if(n&&(Number(n)<1||Number(n)>30)){alert(`${s.name}: سپارہ نمبر 1 سے 30 کے درمیان درج کریں۔`);return;}
+  }
+  records.push({studentId:s.id,attendance,lines:val("lines"),newQuality:val("newQuality"),sabqi:val("sabqi"),sabqiQuality:val("sabqiQuality"),manzil:val("manzil"),manzilQuality:val("manzilQuality")});
+ }
+ if(!db.diaries[date])db.diaries[date]={};
+ records.forEach(r=>db.diaries[date][r.studentId]={...r,classId:cid});
+ persist();
+ alert("کلاس کی ڈائری محفوظ ہو گئی۔");
+}
 
-            document.getElementById('diary-section').classList.add('hidden');
-            document.getElementById('success-msg').classList.remove('hidden');
-        }
+function renderHistory(){
+ const date=document.getElementById("historyDate").value;
+ const cid=document.getElementById("historyClass").value;
+ const records=db.diaries[date]||{};
+ const rows=Object.values(records).filter(r=>!cid||r.classId===cid);
+ document.getElementById("historyResults").innerHTML=rows.length?
+ `<div class="tablewrap"><table><thead><tr><th>طالب علم</th><th>حاضری</th><th>سبق</th><th>کیفیت</th><th>سبقی</th><th>منزل</th></tr></thead><tbody>`+
+ rows.map(r=>{
+ const s=db.students.find(x=>x.id===r.studentId);
+ return `<tr><td>${esc(s?.name||"نام دستیاب نہیں")}</td><td>${r.attendance==="present"?"حاضر":"غیر حاضر"}</td><td>${esc(r.lines||"—")} لائنیں</td><td>${esc(r.newQuality||"—")}</td><td>${esc(r.sabqi||"—")} (${esc(r.sabqiQuality||"—")})</td><td>${esc(r.manzil||"—")} (${esc(r.manzilQuality||"—")})</td></tr>`;
+ }).join("")+`</tbody></table></div>`:"اس تاریخ کا ریکارڈ نہیں ملا۔";
+}
 
-        function resetForm() {
-            document.getElementById('success-msg').classList.add('hidden');
-            document.getElementById('diary-section').classList.remove('hidden');
-            document.getElementById('student-name').value = '';
-            document.getElementById('whatsapp-no').value = '';
-            document.getElementById('new-lesson-lines').value = '';
-            document.getElementById('sabqi-para-no').value = '';
-            document.getElementById('manzil-para-no').value = '';
-        }
+function exportCSV(){
+ const cid=document.getElementById("historyClass").value;
+ const date=document.getElementById("historyDate").value;
+ const records=db.diaries[date]||{};
+ const rows=[["تاریخ","کلاس","طالب علم","رول نمبر","حاضری","لائنیں","سبق کیفیت","سبقی سپارہ","سبقی کیفیت","منزل سپارہ","منزل کیفیت"]];
+ Object.values(records).filter(r=>!cid||r.classId===cid).forEach(r=>{
+ const s=db.students.find(x=>x.id===r.studentId);
+ const c=db.classes.find(x=>x.id===r.classId);
+ rows.push([date,c?.name||"",s?.name||"",s?.sid||"",r.attendance==="present"?"حاضر":"غیر حاضر",r.lines,r.newQuality,r.sabqi,r.sabqiQuality,r.manzil,r.manzilQuality]);
+ });
+ const csv="\uFEFF"+rows.map(row=>row.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\r\n");
+ const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");a.href=url;a.download=`jamia-record-${date}.csv`;a.click();
+ URL.revokeObjectURL(url);
+}
 
-        function logout() {
-            document.getElementById('diary-section').classList.add('hidden');
-            document.getElementById('login-section').classList.remove('hidden');
-            document.getElementById('teacher-name').value = '';
-        }
-    </script>
+function renderDashboard(){
+ document.getElementById("classCount").textContent=db.classes.length;
+ document.getElementById("studentCount").textContent=db.students.length;
+ const records=db.diaries[today()]||{};
+ const values=Object.values(records);
+ document.getElementById("presentCount").textContent=values.filter(r=>r.attendance==="present").length;
+ document.getElementById("absentCount").textContent=values.filter(r=>r.attendance==="absent").length;
+ const completed=new Set(values.map(r=>r.classId));
+ document.getElementById("todaySummary").textContent=
+ `آج ${completed.size} کلاسوں کا ریکارڈ محفوظ کیا گیا ہے۔ کل کلاسیں: ${db.classes.length}۔`;
+}
 
+function renderAll(){
+ renderSelectors();
+ renderClasses();
+ renderStudents();
+ renderDiary();
+ renderHistory();
+ renderDashboard();
+}
+
+document.querySelectorAll("nav button").forEach(btn=>{
+ btn.addEventListener("click",()=>{
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+  document.querySelectorAll(".tab").forEach(s=>s.classList.add("hidden"));
+  btn.classList.add("active");
+  document.getElementById(btn.dataset.tab).classList.remove("hidden");
+ });
+});
+document.getElementById("diaryDate").addEventListener("change",renderDiary);
+renderAll();
+</script>
 </body>
 </html>
