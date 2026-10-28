@@ -358,4 +358,19 @@ function renderHome(){
 }
 function renderAll(){
  renderSelects();renderClasses();renderStudents();renderHome();
- i
+ function renderAll() {
+  renderSelects();
+  renderClasses();
+  renderStudents();
+  renderHome();
+  renderDiaryForm();
+  renderRecordFilters();
+}
+
+document.getElementById('diaryDate').value = today();
+document.getElementById('recordDate').value = today();
+
+renderAll();
+</script>
+</body>
+</html>
