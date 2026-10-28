@@ -4,363 +4,358 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#123b32">
 <title>جامعہ حفظ و ناظرہ مینجمنٹ</title>
 <style>
-:root{--primary:#176b50;--bg:#f3f6f5;--card:#fff;--text:#172b25;--border:#dce5e0}
+:root{--green:#145447;--bg:#f4f7f5;--text:#182a25;--muted:#64756f;--line:#dce6e1}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,"Noto Nastaliq Urdu",sans-serif}
-header{background:var(--primary);color:white;padding:22px 16px}
-header h1{font-size:23px;margin:0 0 8px}
-header p{margin:0;font-size:13px}
-nav{display:flex;gap:8px;padding:12px;overflow-x:auto;background:white;border-bottom:1px solid var(--border)}
-button{cursor:pointer;border:0;border-radius:8px;padding:11px 15px;font-size:14px;font-weight:bold}
-nav button{background:#eaf2ee;color:#174d3c;white-space:nowrap}
-nav button.active,.primary{background:var(--primary);color:white}
-main{max-width:1100px;margin:auto;padding:16px}
-.panel{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
-h2{font-size:19px;margin:0 0 15px}
-h3{font-size:16px;margin:0 0 12px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px}
-.stat{background:#edf6f1;border-radius:10px;padding:16px}
-.stat strong{display:block;font-size:27px;color:var(--primary);margin-top:8px}
-label{display:block;font-size:14px;margin-bottom:6px}
-input,select{width:100%;min-width:0;padding:11px;border:1px solid #cbd8d1;border-radius:8px;background:white;font-size:15px;margin-bottom:12px}
-.formgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
-.formgrid input,.formgrid select{margin-bottom:0}
-.primary{margin-top:12px}
-.secondary{background:#e8efeb;color:#174d3c}
-.danger{background:#ffeded;color:#a32121}
-.small{font-size:12px;color:#64746c}
-.student{border:1px solid var(--border);padding:13px;border-radius:10px;margin:12px 0;background:#fff}
-.student h3{margin-bottom:12px}
-.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:9px}
-.fields label{font-size:12px}
-.fields input,.fields select{margin-bottom:7px}
-.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Tahoma,Arial,sans-serif;line-height:1.65}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;border:0;border-radius:10px;padding:10px 14px;background:var(--green);color:white}
+.secondary{background:#e6efeb;color:var(--green)}
+.danger{background:#b42318}
+.wrap{max-width:1100px;margin:auto;padding:16px}
+header{background:linear-gradient(120deg,#123b32,#1d705c);color:white;padding:20px}
+header h1{margin:0}
+.notice{background:#fff4d6;border:1px solid #efd78d;padding:12px;border-radius:10px;margin:14px 0;font-size:13px}
+.tabs{display:flex;gap:8px;overflow:auto;padding:10px 0}
+.tabs button{white-space:nowrap;background:#e3ece7;color:#21483e}
+.tabs button.active{background:var(--green);color:white}
+.panel{background:white;border:1px solid var(--line);border-radius:14px;padding:15px;margin:12px 0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}
+.stat{background:#eef5f1;border-radius:10px;padding:12px}
+.stat b{display:block;font-size:24px;color:var(--green)}
+label{display:block;font-size:13px;color:var(--muted)}
+input,select,textarea{width:100%;padding:10px;border:1px solid #cbd8d1;border-radius:8px;margin:4px 0 10px;background:white}
+.list{display:grid;gap:8px}
+.item{border:1px solid var(--line);border-radius:10px;padding:12px;display:flex;gap:10px;align-items:center;justify-content:space-between}
+.info{flex:1}.muted{color:var(--muted);font-size:13px}
 .hidden{display:none!important}
-.notice{padding:12px;background:#fff8dd;border-radius:8px;font-size:13px;line-height:1.8}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{border:1px solid var(--border);padding:9px;text-align:right}
-th{background:#edf4f0}
-.tablewrap{overflow-x:auto}
-footer{text-align:center;padding:20px;font-size:12px;color:#6d7c75}
-@media(max-width:500px){main{padding:10px}.panel{padding:12px}header h1{font-size:20px}}
+.table-wrap{overflow:auto}
+table{border-collapse:collapse;width:100%;min-width:700px}
+th,td{border-bottom:1px solid var(--line);padding:8px;text-align:right;vertical-align:top}
+th{background:#eef5f1}
+.attendance label{display:inline-flex;align-items:center;gap:5px;margin-left:10px;color:var(--text)}
+.attendance input{width:auto}
+.empty{padding:20px;text-align:center;color:var(--muted)}
+@media(max-width:600px){.wrap{padding:10px}.panel{padding:11px}.item{align-items:flex-start}}
 </style>
 </head>
 <body>
-<header>
-<h1>جامعہ حفظ و ناظرہ مینجمنٹ</h1>
-<p>حاضری، روزانہ ڈائری اور تعلیمی کارکردگی</p>
-</header>
+<header><div class="wrap">
+<h1>جامعہ حفظ و ناظرہ ڈیجیٹل مینجمنٹ</h1>
+<div>کلاسیں، اساتذہ، طلبہ اور روزانہ تعلیمی ریکارڈ</div>
+</div></header>
+<main class="wrap">
+<div class="notice"><b>آزمائشی ورژن:</b> ڈیٹا صرف اسی براؤزر میں محفوظ ہوگا۔ ابھی حقیقی طلبہ کا حساس ڈیٹا درج نہ کریں۔ مشترکہ ڈیٹا بیس اور محفوظ لاگ اِن بعد میں شامل ہوں گے۔</div>
 
-<nav>
-<button class="active" data-tab="dashboard">ڈیش بورڈ</button>
-<button data-tab="classes">کلاسیں</button>
-<button data-tab="students">طلبہ</button>
-<button data-tab="diary">روزانہ ڈائری</button>
-<button data-tab="history">ریکارڈ</button>
+<nav class="tabs" id="tabs">
+<button class="active" data-page="home">ڈیش بورڈ</button>
+<button data-page="classes">کلاسیں اور اساتذہ</button>
+<button data-page="students">طلبہ</button>
+<button data-page="diary">روزانہ ڈائری</button>
+<button data-page="records">ریکارڈ</button>
 </nav>
 
-<main>
-<section id="dashboard" class="tab">
-<div class="panel">
-<h2>مرکزی ڈیش بورڈ</h2>
+<section id="home" class="page">
+<div class="stats" id="stats"></div>
+<div class="panel"><h2>فوری رسائی</h2>
 <div class="grid">
-<div class="stat">کل کلاسیں<strong id="classCount">0</strong></div>
-<div class="stat">کل طلبہ<strong id="studentCount">0</strong></div>
-<div class="stat">آج حاضر<strong id="presentCount">0</strong></div>
-<div class="stat">آج غیر حاضر<strong id="absentCount">0</strong></div>
+<button onclick="showPage('classes')">کلاسیں اور اساتذہ</button>
+<button onclick="showPage('students')">طلبہ کا اندراج</button>
+<button onclick="showPage('diary')">روزانہ حاضری</button>
+<button onclick="showPage('records')">ریکارڈ دیکھیں</button>
+</div></div>
+<div class="panel"><h2>آج کی رپورٹ</h2><div id="todaySummary">ابھی کوئی ریکارڈ نہیں۔</div></div>
+</section>
+
+<section id="classes" class="page hidden">
+<div class="panel"><h2>نئی کلاس اور استاد</h2>
+<form id="classForm">
+<label>کلاس کا نام</label><input id="className" required placeholder="مثلاً کلاس اوّل">
+<label>استاد کا نام</label><input id="teacherName" required placeholder="مثلاً قاری احمد صاحب">
+<button>کلاس محفوظ کریں</button>
+</form>
+<p class="muted">ہر کلاس کے رول نمبر الگ 1 سے شروع ہوں گے۔</p>
 </div>
-</div>
-<div class="panel">
-<h3>آج کی کارکردگی</h3>
-<div id="todaySummary">ابھی تک کوئی ڈائری محفوظ نہیں ہوئی۔</div>
-</div>
-<div class="notice">
-یہ ابتدائی آزمائشی ورژن ہے۔ اس میں ڈیٹا اسی براؤزر میں محفوظ ہوتا ہے۔ ابھی اسے حقیقی طلبہ کے حساس ریکارڈ کے لیے استعمال نہ کریں۔ مشترکہ ڈیٹا بیس اور محفوظ لاگ اِن اگلے مرحلے میں شامل ہوں گے۔
+<div class="panel"><h2>موجودہ کلاسیں</h2><div id="classList" class="list"></div></div>
+</section>
+
+<section id="students" class="page hidden">
+<div class="panel"><h2>نیا طالب علم</h2>
+<form id="studentForm">
+<label>طالب علم کا نام</label><input id="studentName" required>
+<label>کلاس منتخب کریں</label><select id="studentClass" required></select>
+<label>داخلہ نمبر (اختیاری)</label><input id="admissionNo">
+<label>والد کا نام (اختیاری)</label><input id="fatherName">
+<label>نوٹس (اختیاری)</label><textarea id="studentNotes"></textarea>
+<button>طالب علم محفوظ کریں</button>
+</form></div>
+<div class="panel"><h2>طلبہ کی فہرست</h2>
+<label>کلاس کے مطابق فلٹر</label><select id="studentFilter"></select>
+<div id="studentList" class="list"></div>
 </div>
 </section>
 
-<section id="classes" class="tab hidden">
-<div class="panel">
-<h2>نئی کلاس شامل کریں</h2>
-<label for="className">کلاس کا نام</label>
-<input id="className" placeholder="مثلاً: درجہ حفظ اول">
-<label for="teacherName">استاد کا نام</label>
-<input id="teacherName" placeholder="استاد کا مکمل نام">
-<button class="primary" onclick="addClass()">کلاس محفوظ کریں</button>
-</div>
-<div class="panel">
-<h2>موجودہ کلاسیں</h2>
-<div id="classList"></div>
-</div>
-</section>
-
-<section id="students" class="tab hidden">
-<div class="panel">
-<h2>طالب علم کا اندراج</h2>
-<label for="studentName">طالب علم کا نام</label>
-<input id="studentName" placeholder="طالب علم کا نام">
-<label for="studentId">شناختی نمبر / رول نمبر</label>
-<input id="studentId" placeholder="مثلاً H-001">
-<label for="studentClass">کلاس منتخب کریں</label>
-<select id="studentClass"></select>
-<button class="primary" onclick="addStudent()">طالب علم محفوظ کریں</button>
-</div>
-<div class="panel">
-<h2>طلبہ کی فہرست</h2>
-<input id="studentSearch" placeholder="نام یا رول نمبر تلاش کریں" oninput="renderStudents()">
-<div id="studentList"></div>
-</div>
-</section>
-
-<section id="diary" class="tab hidden">
-<div class="panel">
-<h2>روزانہ کی ڈائری</h2>
-<label for="diaryClass">کلاس منتخب کریں</label>
-<select id="diaryClass" onchange="renderDiary()"></select>
-<label for="diaryDate">تاریخ</label>
-<input id="diaryDate" type="date">
-<div class="notice">ہر طالب علم کی حاضری منتخب کریں۔ حاضر طالب علم کے لیے سبق، سبقی اور منزل درج کریں۔ غیر حاضر طالب علم کا تعلیمی کام خالی رہ سکتا ہے۔</div>
+<section id="diary" class="page hidden">
+<div class="panel"><h2>روزانہ حاضری اور سبق</h2>
+<label>تاریخ</label><input type="date" id="diaryDate">
+<label>کلاس</label><select id="diaryClass"></select>
 <div id="diaryStudents"></div>
-<button class="primary" onclick="saveDiary()">پوری کلاس کی ڈائری محفوظ کریں</button>
+<button id="saveDiary">پوری کلاس کا ریکارڈ محفوظ کریں</button>
 </div>
 </section>
 
-<section id="history" class="tab hidden">
-<div class="panel">
-<h2>محفوظ ریکارڈ</h2>
-<label for="historyClass">کلاس</label>
-<select id="historyClass" onchange="renderHistory()"></select>
-<label for="historyDate">تاریخ</label>
-<input id="historyDate" type="date" onchange="renderHistory()">
-<div id="historyResults"></div>
-<button class="secondary" onclick="exportCSV()">ریکارڈ CSV فائل میں حاصل کریں</button>
+<section id="records" class="page hidden">
+<div class="panel"><h2>ریکارڈ تلاش کریں</h2>
+<label>تاریخ</label><input type="date" id="recordDate">
+<label>کلاس</label><select id="recordClass"></select>
+<label>طالب علم</label><select id="recordStudent"></select>
+<button id="showRecords">ریکارڈ دکھائیں</button>
+<button class="secondary" id="exportCsv">CSV فائل برآمد کریں</button>
+<div id="recordResults"></div>
 </div>
+</section>
+
+<section id="profile" class="page hidden">
+<div class="panel"><button class="secondary" onclick="showPage('students')">واپس طلبہ کی فہرست</button><div id="profileContent"></div></div>
 </section>
 </main>
 
-<footer>جامعہ حفظ و ناظرہ مینجمنٹ — ابتدائی آزمائشی ورژن</footer>
-
 <script>
-const KEY="jamia_hifz_demo_v1";
-let db;
-try {
- db=JSON.parse(localStorage.getItem(KEY))||{classes:[],students:[],diaries:{}};
-} catch(e) {
- db={classes:[],students:[],diaries:{}};
+const KEY='jamiaHifzManagerV2';
+let db=loadDb();
+
+function loadDb(){
+ try{return JSON.parse(localStorage.getItem(KEY))||{classes:[],students:[],records:{}}}
+ catch(e){return {classes:[],students:[],records:{}}}
 }
-
-const today=()=>new Date().toLocaleDateString("en-CA");
-document.getElementById("diaryDate").value=today();
-document.getElementById("historyDate").value=today();
-
-function persist(){
+function saveDb(){
  localStorage.setItem(KEY,JSON.stringify(db));
  renderAll();
 }
-
-function esc(v){
- return String(v??"").replace(/[&<>"']/g,c=>({
- "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
- }[c]));
+function uid(){return 'x'+Date.now().toString(36)+Math.random().toString(36).slice(2,7)}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function today(){
+ let d=new Date();
+ return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
-
-function addClass(){
- const name=document.getElementById("className").value.trim();
- const teacher=document.getElementById("teacherName").value.trim();
- if(!name||!teacher){alert("کلاس اور استاد کا نام درج کریں۔");return;}
- db.classes.push({id:crypto.randomUUID(),name,teacher});
- document.getElementById("className").value="";
- document.getElementById("teacherName").value="";
- persist();
+function classById(id){return db.classes.find(c=>c.id===id)}
+function studentById(id){return db.students.find(s=>s.id===id)}
+function showPage(id){
+ document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));
+ document.getElementById(id).classList.remove('hidden');
+ document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active',b.dataset.page===id));
+ if(id==='diary')renderDiaryForm();
+ if(id==='records')renderRecordFilters();
+ window.scrollTo({top:0,behavior:'smooth'});
 }
+document.querySelectorAll('#tabs button').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));
 
-function addStudent(){
- const name=document.getElementById("studentName").value.trim();
- const sid=document.getElementById("studentId").value.trim();
- const classId=document.getElementById("studentClass").value;
- if(!name||!sid||!classId){alert("تمام خانے پُر کریں۔");return;}
- if(db.students.some(s=>s.sid.toLowerCase()===sid.toLowerCase())){
-  alert("یہ رول نمبر پہلے استعمال ہو چکا ہے۔");return;
+document.getElementById('classForm').addEventListener('submit',e=>{
+ e.preventDefault();
+ let name=document.getElementById('className').value.trim();
+ let teacher=document.getElementById('teacherName').value.trim();
+ if(db.classes.some(c=>c.name.toLowerCase()===name.toLowerCase())){
+  alert('اس نام کی کلاس پہلے موجود ہے۔');return;
  }
- db.students.push({id:crypto.randomUUID(),name,sid,classId});
- document.getElementById("studentName").value="";
- document.getElementById("studentId").value="";
- persist();
-}
-
-function removeClass(id){
- if(!confirm("کیا یہ کلاس اور اس کے طلبہ حذف کرنے ہیں؟"))return;
- db.classes=db.classes.filter(c=>c.id!==id);
- db.students=db.students.filter(s=>s.classId!==id);
- persist();
-}
-
-function removeStudent(id){
- if(!confirm("کیا اس طالب علم کو حذف کرنا ہے؟"))return;
- db.students=db.students.filter(s=>s.id!==id);
- persist();
-}
-
-function options(list,selected,placeholder){
- return `<option value="">${placeholder}</option>`+list.map(x=>
- `<option value="${esc(x.id)}" ${x.id===selected?"selected":""}>${esc(x.name)}</option>`
- ).join("");
-}
-
-function renderSelectors(){
- const c=document.getElementById("studentClass");
- const d=document.getElementById("diaryClass");
- const h=document.getElementById("historyClass");
- const oldC=c.value,oldD=d.value,oldH=h.value;
- c.innerHTML=options(db.classes,oldC,"کلاس منتخب کریں");
- d.innerHTML=options(db.classes,oldD,"کلاس منتخب کریں");
- h.innerHTML=options(db.classes,oldH,"تمام کلاسیں");
-}
-
-function renderClasses(){
- document.getElementById("classList").innerHTML=db.classes.length?db.classes.map(c=>{
- const count=db.students.filter(s=>s.classId===c.id).length;
- return `<div class="student"><div class="row"><div><h3>${esc(c.name)}</h3><div>استاد: ${esc(c.teacher)}</div><div class="small">طلبہ: ${count}</div></div><button class="danger" onclick="removeClass('${c.id}')">حذف</button></div></div>`;
- }).join(""):"ابھی کوئی کلاس شامل نہیں کی گئی۔";
-}
-
-function renderStudents(){
- const q=document.getElementById("studentSearch").value.trim().toLowerCase();
- const list=db.students.filter(s=>(s.name+" "+s.sid).toLowerCase().includes(q));
- document.getElementById("studentList").innerHTML=list.length?list.map(s=>{
- const c=db.classes.find(x=>x.id===s.classId);
- return `<div class="student"><div class="row"><div><h3>${esc(s.name)}</h3><div>رول نمبر: ${esc(s.sid)}</div><div class="small">کلاس: ${esc(c?.name||"حذف شدہ کلاس")}</div></div><button class="danger" onclick="removeStudent('${s.id}')">حذف</button></div></div>`;
- }).join(""):"کوئی طالب علم نہیں ملا۔";
-}
-
-function studentFields(s){
- return `<div class="student" data-student="${s.id}">
- <h3>${esc(s.name)} <span class="small">(${esc(s.sid)})</span></h3>
- <div class="fields">
- <div><label>حاضری</label><select data-field="attendance">
- <option value="">منتخب کریں</option><option value="present">حاضر</option><option value="absent">غیر حاضر</option></select></div>
- <div><label>نئے سبق کی لائنیں</label><input type="number" min="0" data-field="lines" placeholder="مثلاً 15"></div>
- <div><label>نئے سبق کی کیفیت</label><select data-field="newQuality"><option value="">منتخب کریں</option><option>پکا</option><option>متوسط</option><option>کمزور</option></select></div>
- <div><label>سبقی سپارہ نمبر</label><input type="number" min="1" max="30" data-field="sabqi" placeholder="1 تا 30"></div>
- <div><label>سبقی کیفیت</label><select data-field="sabqiQuality"><option value="">منتخب کریں</option><option>پکا</option><option>کچا</option></select></div>
- <div><label>منزل سپارہ نمبر</label><input type="number" min="1" max="30" data-field="manzil" placeholder="1 تا 30"></div>
- <div><label>منزل کیفیت</label><select data-field="manzilQuality"><option value="">منتخب کریں</option><option>پکا</option><option>کچا</option></select></div>
- </div></div>`;
-}
-
-function renderDiary(){
- const cid=document.getElementById("diaryClass").value;
- const date=document.getElementById("diaryDate").value||today();
- const students=db.students.filter(s=>s.classId===cid);
- const existing=db.diaries[date]||{};
- document.getElementById("diaryStudents").innerHTML=students.length?students.map(s=>{
- const html=studentFields(s);
- return html;
- }).join(""):"اس کلاس میں طلبہ موجود نہیں۔ پہلے طلبہ کے حصے سے اندراج کریں۔";
- students.forEach(s=>{
- const old=existing[s.id];
- if(!old)return;
- const el=document.querySelector(`[data-student="${s.id}"]`);
- if(!el)return;
- Object.entries(old).forEach(([k,v])=>{
- const input=el.querySelector(`[data-field="${k}"]`);
- if(input)input.value=v;
- });
- });
-}
-
-function saveDiary(){
- const cid=document.getElementById("diaryClass").value;
- const date=document.getElementById("diaryDate").value;
- if(!cid||!date){alert("کلاس اور تاریخ منتخب کریں۔");return;}
- const students=db.students.filter(s=>s.classId===cid);
- if(!students.length){alert("اس کلاس میں طلبہ موجود نہیں۔");return;}
- const records=[];
- for(const s of students){
-  const el=document.querySelector(`[data-student="${s.id}"]`);
-  if(!el)continue;
-  const val=k=>el.querySelector(`[data-field="${k}"]`)?.value||"";
-  const attendance=val("attendance");
-  if(!attendance){alert(`${s.name}: حاضری منتخب کرنا لازمی ہے۔`);el.scrollIntoView({behavior:"smooth",block:"center"});return;}
-  if(attendance==="present"&&(!val("lines")||!val("newQuality")||!val("sabqi")||!val("sabqiQuality")||!val("manzil")||!val("manzilQuality"))){
-   alert(`${s.name}: حاضر طالب علم کے سبق، سبقی اور منزل کے تمام خانے پُر کریں۔`);
-   el.scrollIntoView({behavior:"smooth",block:"center"});return;
-  }
-  for(const k of ["sabqi","manzil"]){
-   const n=val(k);
-   if(n&&(Number(n)<1||Number(n)>30)){alert(`${s.name}: سپارہ نمبر 1 سے 30 کے درمیان درج کریں۔`);return;}
-  }
-  records.push({studentId:s.id,attendance,lines:val("lines"),newQuality:val("newQuality"),sabqi:val("sabqi"),sabqiQuality:val("sabqiQuality"),manzil:val("manzil"),manzilQuality:val("manzilQuality")});
- }
- if(!db.diaries[date])db.diaries[date]={};
- records.forEach(r=>db.diaries[date][r.studentId]={...r,classId:cid});
- persist();
- alert("کلاس کی ڈائری محفوظ ہو گئی۔");
-}
-
-function renderHistory(){
- const date=document.getElementById("historyDate").value;
- const cid=document.getElementById("historyClass").value;
- const records=db.diaries[date]||{};
- const rows=Object.values(records).filter(r=>!cid||r.classId===cid);
- document.getElementById("historyResults").innerHTML=rows.length?
- `<div class="tablewrap"><table><thead><tr><th>طالب علم</th><th>حاضری</th><th>سبق</th><th>کیفیت</th><th>سبقی</th><th>منزل</th></tr></thead><tbody>`+
- rows.map(r=>{
- const s=db.students.find(x=>x.id===r.studentId);
- return `<tr><td>${esc(s?.name||"نام دستیاب نہیں")}</td><td>${r.attendance==="present"?"حاضر":"غیر حاضر"}</td><td>${esc(r.lines||"—")} لائنیں</td><td>${esc(r.newQuality||"—")}</td><td>${esc(r.sabqi||"—")} (${esc(r.sabqiQuality||"—")})</td><td>${esc(r.manzil||"—")} (${esc(r.manzilQuality||"—")})</td></tr>`;
- }).join("")+`</tbody></table></div>`:"اس تاریخ کا ریکارڈ نہیں ملا۔";
-}
-
-function exportCSV(){
- const cid=document.getElementById("historyClass").value;
- const date=document.getElementById("historyDate").value;
- const records=db.diaries[date]||{};
- const rows=[["تاریخ","کلاس","طالب علم","رول نمبر","حاضری","لائنیں","سبق کیفیت","سبقی سپارہ","سبقی کیفیت","منزل سپارہ","منزل کیفیت"]];
- Object.values(records).filter(r=>!cid||r.classId===cid).forEach(r=>{
- const s=db.students.find(x=>x.id===r.studentId);
- const c=db.classes.find(x=>x.id===r.classId);
- rows.push([date,c?.name||"",s?.name||"",s?.sid||"",r.attendance==="present"?"حاضر":"غیر حاضر",r.lines,r.newQuality,r.sabqi,r.sabqiQuality,r.manzil,r.manzilQuality]);
- });
- const csv="\uFEFF"+rows.map(row=>row.map(v=>'"'+String(v??"").replace(/"/g,'""')+'"').join(",")).join("\r\n");
- const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
- const url=URL.createObjectURL(blob);
- const a=document.createElement("a");a.href=url;a.download=`jamia-record-${date}.csv`;a.click();
- URL.revokeObjectURL(url);
-}
-
-function renderDashboard(){
- document.getElementById("classCount").textContent=db.classes.length;
- document.getElementById("studentCount").textContent=db.students.length;
- const records=db.diaries[today()]||{};
- const values=Object.values(records);
- document.getElementById("presentCount").textContent=values.filter(r=>r.attendance==="present").length;
- document.getElementById("absentCount").textContent=values.filter(r=>r.attendance==="absent").length;
- const completed=new Set(values.map(r=>r.classId));
- document.getElementById("todaySummary").textContent=
- `آج ${completed.size} کلاسوں کا ریکارڈ محفوظ کیا گیا ہے۔ کل کلاسیں: ${db.classes.length}۔`;
-}
-
-function renderAll(){
- renderSelectors();
- renderClasses();
- renderStudents();
- renderDiary();
- renderHistory();
- renderDashboard();
-}
-
-document.querySelectorAll("nav button").forEach(btn=>{
- btn.addEventListener("click",()=>{
-  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
-  document.querySelectorAll(".tab").forEach(s=>s.classList.add("hidden"));
-  btn.classList.add("active");
-  document.getElementById(btn.dataset.tab).classList.remove("hidden");
- });
+ db.classes.push({id:uid(),name,teacher,createdAt:today()});
+ e.target.reset();saveDb();alert('کلاس محفوظ ہوگئی۔');
 });
-document.getElementById("diaryDate").addEventListener("change",renderDiary);
-renderAll();
-</script>
-</body>
-</html>
+
+document.getElementById('studentForm').addEventListener('submit',e=>{
+ e.preventDefault();
+ let name=document.getElementById('studentName').value.trim();
+ let classId=document.getElementById('studentClass').value;
+ if(!classId){alert('پہلے کلاس شامل کریں۔');return}
+ db.students.push({
+  id:uid(),name,classId,
+  admissionNo:document.getElementById('admissionNo').value.trim(),
+  fatherName:document.getElementById('fatherName').value.trim(),
+  notes:document.getElementById('studentNotes').value.trim(),
+  createdAt:today(),createdOrder:Date.now()
+ });
+ e.target.reset();saveDb();alert('طالب علم محفوظ ہوگیا۔');
+});
+
+function classStudents(classId){
+ return db.students.filter(s=>s.classId===classId)
+ .sort((a,b)=>(a.createdOrder||0)-(b.createdOrder||0));
+}
+function rollOf(student){
+ return classStudents(student.classId).findIndex(s=>s.id===student.id)+1;
+}
+function renderSelects(){
+ let opts='<option value="">کلاس منتخب کریں</option>'+
+ db.classes.map(c=>`<option value="${c.id}">${esc(c.name)} — استاد: ${esc(c.teacher)}</option>`).join('');
+ ['studentClass','diaryClass','recordClass'].forEach(id=>{
+  let el=document.getElementById(id),old=el.value;el.innerHTML=opts;
+  if(db.classes.some(c=>c.id===old))el.value=old;
+ });
+ let filter=document.getElementById('studentFilter'),oldf=filter.value;
+ filter.innerHTML='<option value="">تمام کلاسیں</option>'+
+ db.classes.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join('');
+ if(db.classes.some(c=>c.id===oldf))filter.value=oldf;
+}
+function renderClasses(){
+ let el=document.getElementById('classList');
+ if(!db.classes.length){el.innerHTML='<div class="empty">ابھی کوئی کلاس شامل نہیں۔</div>';return}
+ el.innerHTML=db.classes.map(c=>`<div class="item"><div class="info"><b>${esc(c.name)}</b><div class="muted">استاد: ${esc(c.teacher)} • طلبہ: ${classStudents(c.id).length}</div></div><button class="secondary" onclick="editClass('${c.id}')">استاد تبدیل</button><button class="danger" onclick="deleteClass('${c.id}')">حذف</button></div>`).join('');
+}
+function editClass(id){
+ let c=classById(id),t=prompt('استاد کا نیا نام:',c.teacher);
+ if(t&&t.trim()){c.teacher=t.trim();saveDb()}
+}
+function deleteClass(id){
+ if(db.students.some(s=>s.classId===id)){alert('اس کلاس میں طلبہ موجود ہیں۔ پہلے طلبہ کو منتقل یا حذف کریں۔');return}
+ if(confirm('کیا یہ کلاس حذف کرنی ہے؟')){db.classes=db.classes.filter(c=>c.id!==id);saveDb()}
+}
+function renderStudents(){
+ let filter=document.getElementById('studentFilter').value;
+ let arr=db.students.filter(s=>!filter||s.classId===filter);
+ let el=document.getElementById('studentList');
+ if(!arr.length){el.innerHTML='<div class="empty">کوئی طالب علم موجود نہیں۔</div>';return}
+ el.innerHTML=arr.map(s=>{
+  let c=classById(s.classId);
+  return `<div class="item"><div class="info"><b>${esc(s.name)}</b><div class="muted">${esc(c?.name||'')} • رول نمبر: ${rollOf(s)} • استاد: ${esc(c?.teacher||'')}</div></div>
+  <button onclick="openProfile('${s.id}')">ذاتی ریکارڈ</button>
+  <button class="secondary" onclick="moveStudent('${s.id}')">کلاس تبدیل</button>
+  <button class="danger" onclick="deleteStudent('${s.id}')">حذف</button></div>`;
+ }).join('');
+}
+document.getElementById('studentFilter').addEventListener('change',renderStudents);
+
+function moveStudent(id){
+ let s=studentById(id),choices=db.classes.filter(c=>c.id!==s.classId);
+ if(!choices.length){alert('دوسری کلاس پہلے شامل کریں۔');return}
+ let text=choices.map((c,i)=>`${i+1}. ${c.name}`).join('\n');
+ let n=prompt('نئی کلاس کا نمبر لکھیں:\n'+text);
+ if(n===null)return;
+ let c=choices[Number(n)-1];
+ if(!c){alert('درست نمبر منتخب کریں۔');return}
+ if(confirm(`${s.name} کو ${c.name} میں منتقل کریں؟`)){s.classId=c.id;saveDb()}
+}
+function deleteStudent(id){
+ let s=studentById(id);
+ if(!confirm(`${s.name} اور اس کا آزمائشی ریکارڈ حذف کرنا ہے؟`))return;
+ db.students=db.students.filter(x=>x.id!==id);
+ Object.keys(db.records).forEach(date=>{
+  delete db.records[date][id];
+  if(!Object.keys(db.records[date]).length)delete db.records[date];
+ });
+ saveDb();
+}
+
+function renderDiaryForm(){
+ let cid=document.getElementById('diaryClass').value;
+ let date=document.getElementById('diaryDate').value||today();
+ let el=document.getElementById('diaryStudents');
+ if(!document.getElementById('diaryDate').value)document.getElementById('diaryDate').value=today();
+ if(!cid){el.innerHTML='<div class="empty">پہلے کلاس شامل کریں اور منتخب کریں۔</div>';return}
+ let arr=classStudents(cid);
+ if(!arr.length){el.innerHTML='<div class="empty">اس کلاس میں طلبہ شامل نہیں۔</div>';return}
+ el.innerHTML=`<div class="muted">کلاس: ${esc(classById(cid).name)} • استاد: ${esc(classById(cid).teacher)}</div>
+ <div class="table-wrap"><table><thead><tr><th>رول</th><th>طالب علم</th><th>حاضری</th><th>نیا سبق / معیار</th><th>سبقی / معیار</th><th>منزل / معیار</th><th>نوٹ</th></tr></thead><tbody>
+ ${arr.map(s=>{
+  let r=db.records[date]?.[s.id]||{};
+  return `<tr data-student="${s.id}">
+  <td>${rollOf(s)}</td><td><button class="secondary" onclick="openProfile('${s.id}')">${esc(s.name)}</button></td>
+  <td class="attendance"><label><input type="radio" name="att_${s.id}" value="present" ${(r.attendance||'present')==='present'?'checked':''}> حاضر</label><label><input type="radio" name="att_${s.id}" value="absent" ${r.attendance==='absent'?'checked':''}> غیر حاضر</label></td>
+  <td><input data-field="lesson" placeholder="سبق" value="${esc(r.lesson||'')}"><select data-field="lessonQ">${qualityOptions(r.lessonQ)}</select></td>
+  <td><input data-field="sabqi" placeholder="سبقی" value="${esc(r.sabqi||'')}"><select data-field="sabqiQ">${qualityOptions(r.sabqiQ)}</select></td>
+  <td><input data-field="manzil" placeholder="منزل" value="${esc(r.manzil||'')}"><select data-field="manzilQ">${qualityOptions(r.manzilQ)}</select></td>
+  <td><input data-field="note" placeholder="نوٹ" value="${esc(r.note||'')}"></td></tr>`;
+ }).join('')}</tbody></table></div>`;
+ arr.forEach(s=>{
+  let r=db.records[date]?.[s.id],tr=el.querySelector(`tr[data-student="${s.id}"]`);
+  if(r)['lessonQ','sabqiQ','manzilQ'].forEach(f=>{if(r[f])tr.querySelector(`[data-field="${f}"]`).value=r[f]});
+ });
+}
+function qualityOptions(selected){
+ return '<option value="">معیار منتخب کریں</option>'+
+ ['بہترین','اچھا','درمیانہ','کمزور'].map(q=>`<option value="${q}" ${selected===q?'selected':''}>${q}</option>`).join('');
+}
+document.getElementById('diaryClass').addEventListener('change',renderDiaryForm);
+document.getElementById('diaryDate').addEventListener('change',renderDiaryForm);
+document.getElementById('saveDiary').addEventListener('click',()=>{
+ let cid=document.getElementById('diaryClass').value,date=document.getElementById('diaryDate').value;
+ if(!cid){alert('پہلے کلاس منتخب کریں۔');return}
+ if(!db.records[date])db.records[date]={};
+ let rows=[...document.querySelectorAll('#diaryStudents tbody tr')];
+ if(!rows.length){alert('اس کلاس میں طلبہ موجود نہیں۔');return}
+ for(let tr of rows){
+  let sid=tr.dataset.student;
+  let attendance=tr.querySelector(`input[name="att_${sid}"]:checked`)?.value;
+  if(!attendance){alert('ہر طالب علم کی حاضری منتخب کریں۔');return}
+  let val=f=>tr.querySelector(`[data-field="${f}"]`)?.value.trim()||'';
+  db.records[date][sid]={
+   attendance,lesson:val('lesson'),lessonQ:val('lessonQ'),
+   sabqi:val('sabqi'),sabqiQ:val('sabqiQ'),
+   manzil:val('manzil'),manzilQ:val('manzilQ'),
+   note:val('note'),classId:cid,teacher:classById(cid).teacher,
+   savedAt:new Date().toISOString()
+  };
+ }
+ saveDb();alert('پوری کلاس کا ریکارڈ محفوظ ہوگیا۔');
+});
+
+function openProfile(id){
+ let s=studentById(id);if(!s)return;
+ showPage('profile');
+ let c=classById(s.classId),entries=[];
+ Object.keys(db.records).sort().forEach(date=>{let r=db.records[date]?.[id];if(r)entries.push({date,...r})});
+ let present=entries.filter(r=>r.attendance==='present').length;
+ let weak=entries.filter(r=>[r.lessonQ,r.sabqiQ,r.manzilQ].includes('کمزور')).length;
+ document.getElementById('profileContent').innerHTML=`
+ <h2>${esc(s.name)}</h2><p>${esc(c?.name||'')} • رول نمبر ${rollOf(s)||'—'} • استاد ${esc(c?.teacher||'—')}</p>
+ <div class="stats"><div class="stat"><b>${entries.length}</b>درج شدہ دن</div><div class="stat"><b>${present}</b>حاضر دن</div><div class="stat"><b>${weak}</b>کمزور معیار کے اندراج</div></div>
+ <div class="panel"><h3>ذاتی معلومات</h3><p>داخلہ نمبر: ${esc(s.admissionNo||'—')}</p><p>والد کا نام: ${esc(s.fatherName||'—')}</p><p>نوٹس: ${esc(s.notes||'—')}</p></div>
+ <h3>روزانہ تاریخچہ</h3>
+ ${entries.length?`<div class="table-wrap"><table><thead><tr><th>تاریخ</th><th>حاضری</th><th>سبق / معیار</th><th>سبقی / معیار</th><th>منزل / معیار</th><th>نوٹ</th></tr></thead><tbody>${entries.reverse().map(r=>`<tr><td>${esc(r.date)}</td><td>${r.attendance==='present'?'حاضر':'غیر حاضر'}</td><td>${esc(r.lesson||'—')} / ${esc(r.lessonQ||'—')}</td><td>${esc(r.sabqi||'—')} / ${esc(r.sabqiQ||'—')}</td><td>${esc(r.manzil||'—')} / ${esc(r.manzilQ||'—')}</td><td>${esc(r.note||'—')}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">ابھی کوئی روزانہ ریکارڈ نہیں۔</div>'}`;
+}
+
+function renderRecordFilters(){
+ let cid=document.getElementById('recordClass').value,sel=document.getElementById('recordStudent'),old=sel.value;
+ sel.innerHTML='<option value="">تمام طلبہ</option>'+
+ db.students.filter(s=>!cid||s.classId===cid).map(s=>`<option value="${s.id}">${esc(s.name)} — رول ${rollOf(s)}</option>`).join('');
+ if(db.students.some(s=>s.id===old))sel.value=old;
+ if(!document.getElementById('recordDate').value)document.getElementById('recordDate').value=today();
+}
+document.getElementById('recordClass').addEventListener('change',renderRecordFilters);
+document.getElementById('showRecords').addEventListener('click',()=>{
+ let date=document.getElementById('recordDate').value,cid=document.getElementById('recordClass').value,sid=document.getElementById('recordStudent').value;
+ let dates=date?[date]:Object.keys(db.records).sort().reverse(),rows=[];
+ dates.forEach(d=>Object.entries(db.records[d]||{}).forEach(([id,r])=>{
+  let s=studentById(id);
+  if(s&&(!cid||s.classId===cid)&&(!sid||id===sid))rows.push({date:d,s,r});
+ }));
+ document.getElementById('recordResults').innerHTML=rows.length?`<div class="table-wrap"><table><thead><tr><th>تاریخ</th><th>کلاس</th><th>رول</th><th>طالب علم</th><th>حاضری</th><th>سبق</th><th>سبقی</th><th>منزل</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(classById(x.s.classId)?.name||'')}</td><td>${rollOf(x.s)}</td><td><button class="secondary" onclick="openProfile('${x.s.id}')">${esc(x.s.name)}</button></td><td>${x.r.attendance==='present'?'حاضر':'غیر حاضر'}</td><td>${esc(x.r.lesson||'—')} / ${esc(x.r.lessonQ||'—')}</td><td>${esc(x.r.sabqi||'—')} / ${esc(x.r.sabqiQ||'—')}</td><td>${esc(x.r.manzil||'—')} / ${esc(x.r.manzilQ||'—')}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">اس انتخاب کے مطابق ریکارڈ نہیں ملا۔</div>';
+});
+function csvDownload(filename,rows){
+ let csv=rows.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');
+ let blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+ let url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);
+}
+document.getElementById('exportCsv').addEventListener('click',()=>{
+ let rows=[['تاریخ','کلاس','رول نمبر','طالب علم','حاضری','سبق','سبق معیار','سبقی','سبقی معیار','منزل','منزل معیار','نوٹ']];
+ Object.keys(db.records).sort().forEach(d=>Object.entries(db.records[d]||{}).forEach(([id,r])=>{
+  let s=studentById(id);
+  if(s)rows.push([d,classById(s.classId)?.name||'',rollOf(s),s.name,r.attendance==='present'?'حاضر':'غیر حاضر',r.lesson,r.lessonQ,r.sabqi,r.sabqiQ,r.manzil,r.manzilQ,r.note]);
+ }));
+ csvDownload('jamia-daily-records.csv',rows);
+});
+function renderHome(){
+ document.getElementById('stats').innerHTML=`
+ <div class="stat"><b>${db.classes.length}</b>کلاسیں</div>
+ <div class="stat"><b>${db.classes.length}</b>مقررہ اساتذہ</div>
+ <div class="stat"><b>${db.students.length}</b>کل طلبہ</div>
+ <div class="stat"><b>${Object.values(db.records).reduce((n,r)=>n+Object.keys(r).length,0)}</b>روزانہ اندراجات</div>`;
+ let r=db.records[today()]||{},ids=Object.keys(r);
+ let p=ids.filter(id=>r[id].attendance==='present').length,a=ids.filter(id=>r[id].attendance==='absent').length;
+ document.getElementById('todaySummary').innerHTML=ids.length?`آج کے اندراج: <b>${ids.length}</b> • حاضر: <b>${p}</b> • غیر حاضر: <b>${a}</b>`:'آج ابھی کوئی ریکارڈ محفوظ نہیں ہوا۔';
+}
+function renderAll(){
+ renderSelects();renderClasses();renderStudents();renderHome();
+ i
