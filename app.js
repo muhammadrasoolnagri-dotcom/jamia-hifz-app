@@ -207,37 +207,19 @@ document.getElementById('showRecords').addEventListener('click',()=>{
  document.getElementById('recordResults').innerHTML=rows.length?`<div class="table-wrap"><table><thead><tr><th>تاریخ</th><th>کلاس</th><th>رول</th><th>طالب علم</th><th>حاضری</th><th>سبق</th><th>سبقی</th><th>منزل</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(classById(x.s.classId)?.name||'')}</td><td>${rollOf(x.s)}</td><td><button class="secondary" onclick="openProfile('${x.s.id}')">${esc(x.s.name)}</button></td><td>${x.r.attendance==='present'?'حاضر':'غیر حاضر'}</td><td>${esc(x.r.lesson||'—')} / ${esc(x.r.lessonQ||'—')}</td><td>${esc(x.r.sabqi||'—')} / ${esc(x.r.sabqiQ||'—')}</td><td>${esc(x.r.manzil||'—')} / ${esc(x.r.manzilQ||'—')}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">اس انتخاب کے مطابق ریکارڈ نہیں ملا۔</div>';
 });
 function csvDownload(filename,rows){
- 
-function csvDownload(filename, rows) {
-  let csv = rows.map(row =>
-    row.map(v =>
-      '"' + String(v ?? '').replace(/"/g, '""') + '"'
-    ).join(',')
-  ).join('\r\n');
-
-  let bytes = new Uint8Array(2 + csv.length * 2);
-  bytes[0] = 0xFF;
-  bytes[1] = 0xFE;
-
-  for (let i = 0; i < csv.length; i++) {
-    let code = csv.charCodeAt(i);
-    bytes[2 + i * 2] = code & 0xFF;
-    bytes[3 + i * 2] = code >> 8;
-  }
-
-  let blob = new Blob([bytes], {
-    type: 'text/csv;charset=utf-16le;'
-  });
-
-  let url = URL.createObjectURL(blob);
-  let a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
+ let csv=rows.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');
+ let blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
+ let url=URL.createObjectURL(blob),a=document.createElement('a');
+ a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);
 }
-
+document.getElementById('exportCsv').addEventListener('click',()=>{
+ let rows=[['تاریخ','کلاس','رول نمبر','طالب علم','حاضری','سبق','سبق معیار','سبقی','سبقی معیار','منزل','منزل معیار','نوٹ']];
+ Object.keys(db.records).sort().forEach(d=>Object.entries(db.records[d]||{}).forEach(([id,r])=>{
+  let s=studentById(id);
+  if(s)rows.push([d,classById(s.classId)?.name||'',rollOf(s),s.name,r.attendance==='present'?'حاضر':'غیر حاضر',r.lesson,r.lessonQ,r.sabqi,r.sabqiQ,r.manzil,r.manzilQ,r.note]);
+ }));
+ csvDownload('jamia-daily-records.csv',rows);
+});
 function renderHome(){
  document.getElementById('stats').innerHTML=`
  <div class="stat"><b>${db.classes.length}</b>کلاسیں</div>
