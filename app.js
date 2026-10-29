@@ -207,19 +207,104 @@ document.getElementById('showRecords').addEventListener('click',()=>{
  document.getElementById('recordResults').innerHTML=rows.length?`<div class="table-wrap"><table><thead><tr><th>تاریخ</th><th>کلاس</th><th>رول</th><th>طالب علم</th><th>حاضری</th><th>سبق</th><th>سبقی</th><th>منزل</th></tr></thead><tbody>${rows.map(x=>`<tr><td>${esc(x.date)}</td><td>${esc(classById(x.s.classId)?.name||'')}</td><td>${rollOf(x.s)}</td><td><button class="secondary" onclick="openProfile('${x.s.id}')">${esc(x.s.name)}</button></td><td>${x.r.attendance==='present'?'حاضر':'غیر حاضر'}</td><td>${esc(x.r.lesson||'—')} / ${esc(x.r.lessonQ||'—')}</td><td>${esc(x.r.sabqi||'—')} / ${esc(x.r.sabqiQ||'—')}</td><td>${esc(x.r.manzil||'—')} / ${esc(x.r.manzilQ||'—')}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty">اس انتخاب کے مطابق ریکارڈ نہیں ملا۔</div>';
 });
 function csvDownload(filename,rows){
- let csv=rows.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');
- let blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});
- let url=URL.createObjectURL(blob),a=document.createElement('a');
- a.href=url;a.download=filename;a.click();URL.revokeObjectURL(url);
+
+function exportPdf(filtered) {
+  let date = document.getElementById('recordDate').value;
+  let cid = filtered ? document.getElementById('recordClass').value : '';
+  let sid = filtered ? document.getElementById('recordStudent').value : '';
+
+  let dates = Object.keys(db.records).sort().reverse();
+  if (filtered && date) dates = dates.filter(d => d === date);
+
+  let rows = [];
+
+  dates.forEach(d => {
+    Object.entries(db.records[d] || {}).forEach(([id, r]) => {
+      let s = studentById(id);
+      if (!s) return;
+      if (cid && s.classId !== cid) return;
+      if (sid && id !== sid) return;
+
+      rows.push([
+        d,
+        classById(s.classId)?.name || '',
+        rollOf(s),
+        s.name,
+        r.attendance === 'present' ? 'حاضر' : 'غیر حاضر',
+        (r.lesson || '—') + ' / ' + (r.lessonQ || '—'),
+        (r.sabqi || '—') + ' / ' + (r.sabqiQ || '—'),
+        (r.manzil || '—') + ' / ' + (r.manzilQ || '—'),
+        r.note || '—'
+      ]);
+    });
+  });
+
+  let w = window.open('', '_blank');
+  if (!w) {
+    alert('پی ڈی ایف بنانے کے لیے نئی ونڈو کھولنے کی اجازت دیں۔');
+    return;
+  }
+
+  let headings = [
+    'تاریخ', 'کلاس', 'رول نمبر', 'طالب علم',
+    'حاضری', 'سبق / معیار', 'سبقی / معیار',
+    'منزل / معیار', 'نوٹ'
+  ];
+
+  let table = rows.length
+    ? '<table><thead><tr>' +
+      headings.map(h => '<th>' + esc(h) + '</th>').join('') +
+      '</tr></thead><tbody>' +
+      rows.map(row => '<tr>' +
+        row.map(v => '<td>' + esc(v) + '</td>').join('') +
+        '</tr>').join('') +
+      '</tbody></table>'
+    : '<p>اس انتخاب کے مطابق کوئی ریکارڈ موجود نہیں۔</p>';
+
+  w.document.open();
+  w.document.write(`<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<title>جامعہ کی رپورٹ</title>
+<style>
+@page { size: A4 landscape; margin: 12mm; }
+body { font-family: Tahoma, Arial, sans-serif; direction: rtl;
+  color: #172b25; }
+h1, h2, p { text-align: center; }
+h1 { font-size: 22px; margin-bottom: 5px; }
+h2 { font-size: 16px; }
+table { width: 100%; border-collapse: collapse;
+  direction: rtl; font-size: 11px; }
+th, td { border: 1px solid #777; padding: 6px;
+  text-align: right; vertical-align: top; }
+th { background: #e8f0ec; }
+tr { page-break-inside: avoid; }
+</style>
+</head>
+<body>
+<h1>جامعہ اشرف العلوم باغبانپورہ رجسٹرڈ</h1>
+<h2>${filtered ? 'منتخب ریکارڈ رپورٹ' : 'مکمل روزانہ ریکارڈ رپورٹ'}</h2>
+<p>تاریخِ رپورٹ: ${esc(today())}</p>
+${table}
+</body>
+</html>`);
+  w.document.close();
+
+  setTimeout(() => {
+    w.focus();
+    w.print();
+  }, 700);
 }
-document.getElementById('exportCsv').addEventListener('click',()=>{
- let rows=[['تاریخ','کلاس','رول نمبر','طالب علم','حاضری','سبق','سبق معیار','سبقی','سبقی معیار','منزل','منزل معیار','نوٹ']];
- Object.keys(db.records).sort().forEach(d=>Object.entries(db.records[d]||{}).forEach(([id,r])=>{
-  let s=studentById(id);
-  if(s)rows.push([d,classById(s.classId)?.name||'',rollOf(s),s.name,r.attendance==='present'?'حاضر':'غیر حاضر',r.lesson,r.lessonQ,r.sabqi,r.sabqiQ,r.manzil,r.manzilQ,r.note]);
- }));
- csvDownload('jamia-daily-records.csv',rows);
+
+document.getElementById('exportAllPdf').addEventListener('click', () => {
+  exportPdf(false);
 });
+
+document.getElementById('exportFilteredPdf').addEventListener('click', () => {
+  exportPdf(true);
+});
+
 function renderHome(){
  document.getElementById('stats').innerHTML=`
  <div class="stat"><b>${db.classes.length}</b>کلاسیں</div>
