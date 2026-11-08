@@ -1,270 +1,100 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ur" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#145447">
-<title>جامعہ اشرف العلوم باغبانپورہ | ڈیجیٹل مینجمنٹ</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>جامعہ اشرف العلوم باغبانپورہ — ڈیجیٹل تعلیمی مینجمنٹ</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    :root{font-family:system-ui,"Noto Nastaliq Urdu",Arial,sans-serif;color:#172033;background:#f4f6fa}
+    *{box-sizing:border-box}body{margin:0}button,input,select,textarea{font:inherit}
+    .top{background:#123b32;color:white;padding:18px 5%;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+    .top h1{font-size:21px;margin:0}.top small{opacity:.8}.wrap{max-width:1100px;margin:22px auto;padding:0 14px}
+    .panel,.card{background:white;border:1px solid #e2e7ed;border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 3px 14px #14213d0a}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+    label{display:block;font-weight:600;margin:9px 0 5px}input,select,textarea{width:100%;padding:10px;border:1px solid #ccd4df;border-radius:8px;background:white}
+    button{border:0;border-radius:9px;padding:10px 15px;background:#176b55;color:white;cursor:pointer;margin:4px}
+    button.secondary{background:#e9eef2;color:#203040}button.danger{background:#a83232}
+    button:disabled{opacity:.45;cursor:not-allowed}.muted{color:#697586;font-size:13px}
+    .hidden{display:none!important}.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+    .tabs button{background:#e3ebe8;color:#164638}.tabs button.active{background:#176b55;color:white}
+    .row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    table{width:100%;border-collapse:collapse}th,td{text-align:right;padding:9px;border-bottom:1px solid #e8edf1;vertical-align:top}
+    .status{padding:10px;border-radius:8px;background:#fff5d9;color:#624900;margin:10px 0}
+    .ok{background:#e6f6ed;color:#145b36}.bad{background:#fde9e9;color:#8b1e1e}
+    .record-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
+    footer{text-align:center;color:#77808d;padding:25px;font-size:13px}
+  </style>
 </head>
 <body>
-
-<header class="topbar">
-  <div class="brand-mark">MR</div>
-  <div class="brand">
-    <h1>جامعہ اشرف العلوم باغبانپورہ</h1>
-    <p>ڈیجیٹل تعلیمی مینجمنٹ سسٹم</p>
-  </div>
-  <button id="newClassTop" class="light-btn">＋ نئی کلاس</button>
+<header class="top">
+  <div><h1>جامعہ اشرف العلوم باغبانپورہ</h1><small>ڈیجیٹل تعلیمی مینجمنٹ سسٹم</small></div>
+  <div id="userBar" class="hidden"><span id="userEmail"></span> <button id="logoutBtn" class="secondary">لاگ آؤٹ</button></div>
 </header>
+<main class="wrap">
+  <section id="loginView" class="panel">
+    <h2>اکاؤنٹ میں داخل ہوں</h2>
+    <p class="muted">صرف منظور شدہ اساتذہ اور منتظمین کے لیے۔</p>
+    <button id="loginBtn">Google کے ذریعے لاگ اِن</button>
+    <div id="loginMessage" class="status hidden"></div>
+  </section>
 
-<main class="app-shell">
+  <section id="pendingView" class="panel hidden">
+    <h2>منظوری درکار ہے</h2>
+    <p>آپ کا اکاؤنٹ بن گیا ہے، لیکن منتظم کی منظوری کے بعد ہی ایپ استعمال کر سکیں گے۔</p>
+    <button id="pendingLogout" class="secondary">لاگ آؤٹ</button>
+  </section>
 
-<div class="notice">
-  <span>●</span>
-  آزمائشی ورژن: ڈیٹا اسی براؤزر میں محفوظ ہوتا ہے۔ حقیقی طلبہ کا حساس ڈیٹا درج کرنے سے پہلے محفوظ لاگ اِن اور مشترکہ ڈیٹا بیس شامل کرنا ضروری ہے۔
-</div>
-
-<nav class="main-nav">
-  <button class="nav-btn active" data-view="home">ڈیش بورڈ</button>
-  <button class="nav-btn" data-view="students">طلبہ</button>
-  <button class="nav-btn" data-view="diary">روزانہ ڈائری</button>
-  <button class="nav-btn" data-view="records">رپورٹس و ریکارڈ</button>
-</nav>
-
-<section id="homeView" class="view">
-
-<div class="welcome">
-  <div>
-    <span class="eyebrow">خوش آمدید</span>
-    <h2>تعلیمی نظام ایک جگہ</h2>
-    <p>اپنی کلاس منتخب کریں اور طلبہ کا روزانہ ریکارڈ مرتب کریں۔</p>
-  </div>
-  <div class="welcome-icon">✦</div>
-</div>
-
-<div id="stats" class="stats-grid"></div>
-
-<div class="section-heading">
-  <div>
-    <h2>آپ کی کلاسیں</h2>
-    <p>کلاس منتخب کرکے اس کے طلبہ دیکھیں</p>
-  </div>
-  <button class="primary-btn" id="newClassBtn">＋ کلاس بنائیں</button>
-</div>
-
-<div id="classCards" class="class-grid"></div>
-
-<div class="section-heading compact">
-  <div>
-    <h2>آج کی حاضری</h2>
-    <p id="todayLabel"></p>
-  </div>
-  <button class="text-btn" data-go="records">رپورٹ دیکھیں ←</button>
-</div>
-
-<div id="todaySummary" class="summary-card"></div>
-
-</section>
-
-<section id="studentsView" class="view hidden">
-  <div class="page-heading">
-    <div>
-      <h2 id="studentsHeading">طلبہ کی فہرست</h2>
-      <p id="studentsSub">تمام کلاسوں کے طلبہ</p>
-    </div>
-    <button id="addStudentBtn" class="primary-btn">＋ نیا طالب علم</button>
-  </div>
-
-  <div class="toolbar">
-    <label class="field">
-      <span>کلاس منتخب کریں</span>
-      <select id="studentFilter"></select>
-    </label>
-    <input id="studentSearch" class="search-input" placeholder="طالب علم کا نام تلاش کریں…">
-  </div>
-
-  <div id="studentCards" class="student-grid"></div>
-</section>
-
-<section id="diaryView" class="view hidden">
-  <div class="page-heading">
-    <div>
+  <section id="appView" class="hidden">
+    <div class="panel row"><div><strong id="welcome"></strong><div id="roleLabel" class="muted"></div></div><div id="todayLabel"></div></div>
+    <nav class="tabs">
+      <button data-tab="dashboard" class="active">ڈیش بورڈ</button>
+      <button data-tab="students">طلبہ</button>
+      <button data-tab="diary">روزانہ ڈائری</button>
+      <button data-tab="records">ریکارڈز</button>
+      <button data-tab="admin" id="adminTab" class="hidden">انتظامیہ</button>
+    </nav>
+    <section id="dashboardTab" class="panel">
+      <h2>ڈیش بورڈ</h2><div id="stats" class="grid"></div><h3>آپ کی کلاسیں</h3><div id="classCards" class="grid"></div>
+    </section>
+    <section id="studentsTab" class="panel hidden">
+      <div class="row"><h2>طلبہ</h2><button id="addStudentBtn">نیا طالب علم</button></div>
+      <div class="grid"><div><label>کلاس</label><select id="studentFilter"></select></div><div><label>تلاش</label><input id="studentSearch" placeholder="طالب علم کا نام یا رول نمبر"></div></div>
+      <div id="studentCards"></div>
+    </section>
+    <section id="diaryTab" class="panel hidden">
       <h2>روزانہ حاضری و سبق</h2>
-      <p>منتخب کلاس کے طلبہ کا آج یا کسی تاریخ کا ریکارڈ درج کریں</p>
-    </div>
-  </div>
-
-  <div class="panel form-panel">
-    <div class="form-grid">
-      <label class="field">
-        <span>تاریخ</span>
-        <input id="diaryDate" type="date">
-      </label>
-      <label class="field">
-        <span>کلاس</span>
-        <select id="diaryClass"></select>
-      </label>
-    </div>
-
-    <div id="diaryStudents" class="diary-list"></div>
-    <button id="saveDiary" class="primary-btn wide">ریکارڈ محفوظ کریں</button>
-  </div>
-</section>
-
-<section id="recordsView" class="view hidden">
-  <div class="page-heading">
-    <div>
-      <h2>رپورٹس و ریکارڈ</h2>
-      <p>روزانہ، ہفتہ وار یا ماہانہ ریکارڈ دیکھیں</p>
-    </div>
-    <button id="exportCsv" class="secondary-btn">CSV ڈاؤن لوڈ</button>
-  </div>
-
-  <div class="panel">
-    <div class="report-tabs">
-      <button class="report-tab active" data-period="daily">روزانہ</button>
-      <button class="report-tab" data-period="weekly">ہفتہ وار</button>
-      <button class="report-tab" data-period="monthly">ماہانہ</button>
-      <button class="report-tab" data-period="all">تمام ریکارڈ</button>
-    </div>
-
-    <div class="form-grid report-filters">
-      <label class="field">
-        <span>تاریخ / مدت کی بنیاد</span>
-        <input id="recordDate" type="date">
-      </label>
-      <label class="field">
-        <span>کلاس</span>
-        <select id="recordClass"></select>
-      </label>
-      <label class="field">
-        <span>طالب علم</span>
-        <select id="recordStudent"></select>
-      </label>
-    </div>
-
-    <div class="button-row">
-      <button id="showRecords" class="primary-btn">ریکارڈ دکھائیں</button>
-      <button id="exportAllPdf" class="secondary-btn">تمام ریکارڈ PDF</button>
-      <button id="exportFilteredPdf" class="secondary-btn">منتخب ریکارڈ PDF</button>
-    </div>
-
-    <div id="recordResults"></div>
-  </div>
-</section>
-
-<section id="classView" class="view hidden">
-  <button class="back-btn" data-go="home">→ واپس کلاسوں پر</button>
-  <div id="classDetail"></div>
-</section>
-
-<section id="profileView" class="view hidden">
-  <button class="back-btn" id="backToClass">→ واپس طلبہ کی فہرست</button>
-  <div id="profileContent"></div>
-</section>
-
+      <div class="grid"><div><label>تاریخ</label><input id="diaryDate" type="date"></div><div><label>کلاس</label><select id="diaryClass"></select></div></div>
+      <div id="diaryStudents"></div><button id="saveDiary">ریکارڈ محفوظ کریں</button>
+      <div class="muted">سبق، سبقی اور منزل تینوں لازمی ہیں۔ وضاحت کے لیے آزاد تحریر درج کر سکتے ہیں۔</div>
+    </section>
+    <section id="recordsTab" class="panel hidden">
+      <h2>ریکارڈز</h2><div class="grid">
+        <div><label>تاریخ</label><input id="recordDate" type="date"></div>
+        <div><label>کلاس</label><select id="recordClass"></select></div>
+        <div><label>طالب علم</label><select id="recordStudent"></select></div>
+      </div>
+      <button id="showRecords">ریکارڈ دکھائیں</button><button id="exportCsv" class="secondary">CSV ایکسپورٹ</button>
+      <div id="recordResults"></div>
+    </section>
+    <section id="adminTabPanel" class="panel hidden">
+      <h2>انتظامیہ</h2>
+      <h3>اساتذہ کی منظوری اور کلاس الاٹمنٹ</h3>
+      <div id="teacherList"></div>
+      <hr><h3>کلاس بنائیں</h3>
+      <div class="grid"><div><label>کلاس کا نام</label><input id="newClassName"></div><div class="row" style="align-items:end"><button id="createClassBtn">کلاس بنائیں</button></div></div>
+      <h3>کلاسوں کی تفصیل</h3><div id="adminClasses"></div>
+    </section>
+  </section>
+  <div id="toast" class="status hidden"></div>
 </main>
+<footer>MR · Muhammad Rasoolnagri · CREATOR / DEVELOPER</footer>
 
-<!-- Creator / Developer Footer -->
-<footer style="
-  margin:35px 12px 15px;
-  padding:20px 15px;
-  text-align:center;
-  background:linear-gradient(135deg,#123b32,#1d705c);
-  color:white;
-  border-radius:16px;
-  border-top:4px solid #c9a34a;
-">
-
-  <div style="
-    font-family:Arial,sans-serif;
-    font-size:36px;
-    font-weight:800;
-    letter-spacing:2px;
-    color:#e6c36a;
-    margin-bottom:5px;
-  ">MR</div>
-
-  <div style="
-    font-family:Arial,sans-serif;
-    font-size:19px;
-    font-weight:bold;
-    direction:ltr;
-  ">Muhammad Rasoolnagri</div>
-
-  <div style="
-    font-family:Arial,sans-serif;
-    font-size:11px;
-    letter-spacing:3px;
-    margin-top:7px;
-    color:#e6c36a;
-  ">CREATOR / DEVELOPER</div>
-
-</footer>
-
-<dialog id="classDialog">
-<form id="classForm" method="dialog">
-  <div class="dialog-head">
-    <h2>نئی کلاس بنائیں</h2>
-    <button type="button" class="icon-btn" data-close="classDialog">✕</button>
-  </div>
-  <label class="field">
-    <span>کلاس کا نام</span>
-    <input id="className" required placeholder="مثلاً درجہ حفظ اول">
-  </label>
-  <label class="field">
-    <span>استاد کا نام</span>
-    <input id="teacherName" required placeholder="مثلاً قاری احمد صاحب">
-  </label>
-  <div class="dialog-actions">
-    <button type="button" class="secondary-btn" data-close="classDialog">منسوخ</button>
-    <button class="primary-btn">کلاس محفوظ کریں</button>
-  </div>
-</form>
-</dialog>
-
-<dialog id="studentDialog">
-<form id="studentForm" method="dialog">
-  <div class="dialog-head">
-    <h2>نیا طالب علم</h2>
-    <button type="button" class="icon-btn" data-close="studentDialog">✕</button>
-  </div>
-  <label class="field">
-    <span>طالب علم کا نام</span>
-    <input id="studentName" required>
-  </label>
-  <label class="field">
-    <span>کلاس</span>
-    <select id="studentClass" required></select>
-  </label>
-  <label class="field">
-    <span>داخلہ نمبر (اختیاری)</span>
-    <input id="admissionNo">
-  </label>
-  <label class="field">
-    <span>والد کا نام (اختیاری)</span>
-    <input id="fatherName">
-  </label>
-  <label class="field">
-    <span>نوٹس (اختیاری)</span>
-    <textarea id="studentNotes" rows="2"></textarea>
-  </label>
-  <div class="dialog-actions">
-    <button type="button" class="secondary-btn" data-close="studentDialog">منسوخ</button>
-    <button class="primary-btn">طالب علم محفوظ کریں</button>
-  </div>
-</form>
-</dialog>
-
-<div id="toast" class="toast" role="status"></div>
-
-<script src="app.js" defer></script>
-<script src="pdf.js" defer></script>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  window.SUPABASE_URL = "https://rwpozxityburcnyktcbx.supabase.co";
+  window.SUPABASE_ANON_KEY = "PASTE_YOUR_SUPABASE_PUBLISHABLE_KEY_HERE";
+</script>
+<script src="app.js"></script>
 </body>
 </html>
