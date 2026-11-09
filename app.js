@@ -1,174 +1,597 @@
+
 /* Jamia Hifz/Nazra Management — Supabase client */
 (() => {
 "use strict";
-const URL = window.SUPABASE_URL;
+
+const SUPABASE_URL = window.SUPABASE_URL;
 const KEY = window.SUPABASE_ANON_KEY;
+
 const $ = id => document.getElementById(id);
 const today = () => new Date().toLocaleDateString("en-CA", {timeZone:"Asia/Karachi"});
 const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
 let sb, user, profile, classes=[], students=[], records=[], assignments=[], lastCsv=[];
+
 const isAdmin = () => profile?.role === "admin";
-const toast = (msg,bad=false) => {const el=$("toast");el.textContent=msg;el.classList.remove("hidden","bad","ok");el.classList.add(bad?"bad":"ok");setTimeout(()=>el.classList.add("hidden"),4500)};
-const fail = (e) => {console.error(e);toast(e?.message || "عمل مکمل نہیں ہوا۔",true)};
-const q = async (promise) => {const {data,error}=await promise;if(error)throw error;return data};
+
+const toast = (msg,bad=false) => {
+  const el=$("toast");
+  if(!el)return;
+  el.textContent=msg;
+  el.classList.remove("hidden","bad","ok");
+  el.classList.add(bad?"bad":"ok");
+  setTimeout(()=>el.classList.add("hidden"),4500);
+};
+
+const fail = e => {
+  console.error(e);
+  toast(e?.message || "عمل مکمل نہیں ہوا۔",true);
+};
+
+const q = async promise => {
+  const {data,error}=await promise;
+  if(error)throw error;
+  return data;
+};
+
 const show = (id,on=true) => $(id)?.classList.toggle("hidden",!on);
-const setOptions = (id, rows, first="کلاس منتخب کریں") => {const el=$(id);if(!el)return;const old=el.value;el.innerHTML=`<option value="">${first}</option>`+rows.map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("");if(rows.some(x=>x.id===old))el.value=old;};
+
+const setOptions = (id,rows,first="کلاس منتخب کریں") => {
+  const el=$(id);
+  if(!el)return;
+  const old=el.value;
+  el.innerHTML=`<option value="">${first}</option>`+
+    rows.map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("");
+  if(rows.some(x=>x.id===old))el.value=old;
+};
+
 const assignedClass = id => classes.find(c=>c.id===id);
 const studentById = id => students.find(s=>s.id===id);
 const classById = id => assignedClass(id);
-const rollOf = s => students.filter(x=>x.class_id===s.class_id).sort((a,b)=>a.created_at.localeCompare(b.created_at)).findIndex(x=>x.id===s.id)+1;
+
+const rollOf = s =>
+  students
+    .filter(x=>x.class_id===s.class_id)
+    .sort((a,b)=>a.created_at.localeCompare(b.created_at))
+    .findIndex(x=>x.id===s.id)+1;
 
 async function init(){
-  if(!window.supabase || !KEY || KEY.includes("PASTE_")) { $("loginMessage").textContent="index.html میں Supabase Publishable/anon key درج کریں۔";show("loginMessage");return; }
-  sb=window.supabase.createClient(URL,KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
-  $("loginBtn").onclick=login; $("logoutBtn").onclick=logout; $("pendingLogout").onclick=logout;
-  document.querySelectorAll("[data-tab]").forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
-  $("addStudentBtn").onclick=addStudent; $("saveDiary").onclick=saveDiary;
-  $("createClassBtn").onclick=createClass; $("showRecords").onclick=showRecords; $("exportCsv").onclick=exportCsv;
-  $("studentFilter").onchange=renderStudents; $("studentSearch").oninput=renderStudents;
-  $("diaryClass").onchange=renderDiary; $("recordClass").onchange=loadRecordStudents;
+  if(!window.supabase || !KEY || KEY.includes("PASTE_")){
+    $("loginMessage").textContent="index.html میں Supabase Publishable/anon key درج کریں۔";
+    show("loginMessage");
+    return;
+  }
+
+  sb=window.supabase.createClient(SUPABASE_URL,KEY,{
+    auth:{
+      persistSession:true,
+      autoRefreshToken:true,
+      detectSessionInUrl:true
+    }
+  });
+
+  $("loginBtn").onclick=login;
+  $("logoutBtn").onclick=logout;
+  $("logoutBtnMain").onclick=logout;
+  $("pendingLogout").onclick=logout;
+
+  document.querySelectorAll("[data-tab]").forEach(b=>{
+    b.onclick=()=>switchTab(b.dataset.tab);
+  });
+
+  $("addStudentBtn").onclick=addStudent;
+  $("saveDiary").onclick=saveDiary;
+  $("createClassBtn").onclick=createClass;
+  $("showRecords").onclick=showRecords;
+  $("exportCsv").onclick=exportCsv;
+
+  $("studentFilter").onchange=renderStudents;
+  $("studentSearch").oninput=renderStudents;
+  $("diaryClass").onchange=renderDiary;
+  $("recordClass").onchange=loadRecordStudents;
+
   const {data:{session}}=await sb.auth.getSession();
-  if(session) await boot(session.user);
-  sb.auth.onAuthStateChange((_event,session)=>{if(session)boot(session.user).catch(fail);else resetUI();});
+
+  if(session)await boot(session.user);
+
+  sb.auth.onAuthStateChange((_event,session)=>{
+    if(session)boot(session.user).catch(fail);
+    else resetUI();
+  });
 }
+
 async function login(){
-  try{await q(sb.auth.signInWithOAuth({provider:"google",options:{redirectTo:location.origin+location.pathname}}));}catch(e){fail(e);}
+  try{
+    await q(sb.auth.signInWithOAuth({
+      provider:"google",
+      options:{redirectTo:location.origin+location.pathname}
+    }));
+  }catch(e){fail(e);}
 }
-async function logout(){if(sb)await sb.auth.signOut();resetUI();}
-function resetUI(){user=profile=null;classes=[];students=[];records=[];assignments=[];show("loginView");show("pendingView",false);show("appView",false);show("userBar",false);}
+
+async function logout(){
+  try{
+    if(sb)await q(sb.auth.signOut());
+    resetUI();
+  }catch(e){fail(e);}
+}
+
+function resetUI(){
+  user=profile=null;
+  classes=[];
+  students=[];
+  records=[];
+  assignments=[];
+  show("loginView");
+  show("pendingView",false);
+  show("appView",false);
+  show("userBar",false);
+}
+
 async function boot(u){
   user=u;
+
   try{
-    profile=await q(sb.from("profiles").select("*").eq("id",u.id).single());
-    if(!profile.active){show("loginView",false);show("appView",false);show("pendingView");return;}
-    show("loginView",false);show("pendingView",false);show("appView");show("userBar");
-    $("userEmail").textContent=u.email||"";$("welcome").textContent=profile.full_name||u.email||"صارف";
+    profile=await q(
+      sb.from("profiles").select("*").eq("id",u.id).single()
+    );
+
+    if(!profile.active){
+      show("loginView",false);
+      show("appView",false);
+      show("pendingView");
+      return;
+    }
+
+    show("loginView",false);
+    show("pendingView",false);
+    show("appView");
+    show("userBar");
+
+    $("userEmail").textContent=u.email||"";
+    $("welcome").textContent=profile.full_name||u.email||"صارف";
     $("roleLabel").textContent=isAdmin()?"منتظم / مکمل اختیار":"استاد";
-    show("adminTab",isAdmin());$("todayLabel").textContent=today();
-    await loadData();switchTab("dashboard");
-  }catch(e){fail(e);resetUI();}
+
+    show("adminTab",isAdmin());
+    $("todayLabel").textContent=today();
+
+    await loadData();
+    switchTab("dashboard");
+
+  }catch(e){
+    fail(e);
+    resetUI();
+  }
 }
+
 async function loadData(){
   if(isAdmin()){
-    classes=await q(sb.from("classes").select("*").order("created_at"));
-    assignments=await q(sb.from("class_teachers").select("id,class_id,teacher_id,profiles(id,full_name,email,active)"));
+    classes=await q(
+      sb.from("classes").select("*").order("created_at")
+    );
+
+    assignments=await q(
+      sb.from("class_teachers")
+        .select("id,class_id,teacher_id,profiles(id,full_name,email,active)")
+    );
+
   }else{
-    assignments=await q(sb.from("class_teachers").select("class_id").eq("teacher_id",user.id));
+    assignments=await q(
+      sb.from("class_teachers")
+        .select("class_id")
+        .eq("teacher_id",user.id)
+    );
+
     const ids=assignments.map(a=>a.class_id);
-    classes=ids.length?await q(sb.from("classes").select("*").in("id",ids)): [];
+
+    classes=ids.length
+      ?await q(sb.from("classes").select("*").in("id",ids))
+      :[];
   }
+
   const ids=classes.map(c=>c.id);
-  students=ids.length?await q(sb.from("students").select("*").in("class_id",ids).eq("active",true).order("created_at")):[];
-  records=ids.length?await q(sb.from("daily_records").select("*").in("class_id",ids).order("record_date",{ascending:false}).limit(3000)):[];
-  setOptions("studentFilter",classes);setOptions("diaryClass",classes);setOptions("recordClass",classes);
-  renderDashboard();renderStudents();renderDiary();if(isAdmin())renderAdmin();
+
+  students=ids.length
+    ?await q(
+      sb.from("students")
+        .select("*")
+        .in("class_id",ids)
+        .eq("active",true)
+        .order("created_at")
+    )
+    :[];
+
+  records=ids.length
+    ?await q(
+      sb.from("daily_records")
+        .select("*")
+        .in("class_id",ids)
+        .order("record_date",{ascending:false})
+        .limit(3000)
+    )
+    :[];
+
+  setOptions("studentFilter",classes);
+  setOptions("diaryClass",classes);
+  setOptions("recordClass",classes);
+
+  renderDashboard();
+  renderStudents();
+  renderDiary();
+
+  if(isAdmin())renderAdmin();
 }
+
 function switchTab(name){
-  ["dashboard","students","diary","records","admin"].forEach(t=>show(t+"Tab",t===name));
-  document.querySelectorAll("[data-tab]").forEach(b=>b.classList.toggle("active",b.dataset.tab===name));
-  if(name==="diary")renderDiary();if(name==="admin"&&isAdmin())renderAdmin();
+  ["dashboard","students","diary","records","admin"].forEach(t=>{
+    show(t+"Tab",t===name);
+  });
+
+  document.querySelectorAll("[data-tab]").forEach(b=>{
+    b.classList.toggle("active",b.dataset.tab===name);
+  });
+
+  if(name==="diary")renderDiary();
+  if(name==="admin"&&isAdmin())renderAdmin();
 }
+
 function renderDashboard(){
-  $("stats").innerHTML=[["کلاسیں",classes.length],["طلبہ",students.length],["آج کے ریکارڈ",records.filter(r=>r.record_date===today()).length]].map(([a,b])=>`<div class="card"><div class="muted">${a}</div><h2>${b}</h2></div>`).join("");
-  $("classCards").innerHTML=classes.map(c=>`<div class="card"><b>${esc(c.name)}</b><div class="muted">${students.filter(s=>s.class_id===c.id).length} طلبہ</div></div>`).join("")||"ابھی کوئی کلاس الاٹ نہیں۔";
+  $("stats").innerHTML=[
+    ["کلاسیں",classes.length],
+    ["طلبہ",students.length],
+    ["آج کے ریکارڈ",records.filter(r=>r.record_date===today()).length]
+  ].map(([a,b])=>
+    `<div class="card"><div class="muted">${a}</div><h2>${b}</h2></div>`
+  ).join("");
+
+  $("classCards").innerHTML=classes.map(c=>
+    `<div class="card"><b>${esc(c.name)}</b>
+    <div class="muted">${students.filter(s=>s.class_id===c.id).length} طلبہ</div></div>`
+  ).join("")||"ابھی کوئی کلاس الاٹ نہیں۔";
 }
+
 function renderStudents(){
-  const cid=$("studentFilter").value, term=$("studentSearch").value.trim().toLowerCase();
-  const list=students.filter(s=>(!cid||s.class_id===cid)&&(!term||`${s.name} ${s.admission_no||""}`.toLowerCase().includes(term)));
-  $("studentCards").innerHTML=list.map(s=>`<div class="card row"><div><b>${esc(s.name)}</b><div class="muted">${esc(classById(s.class_id)?.name||"")} · رول ${rollOf(s)} · داخلہ ${esc(s.admission_no||"-")}</div><div class="muted">${esc(s.father_name||"")}</div></div></div>`).join("")||"کوئی طالب علم نہیں۔";
+  const cid=$("studentFilter").value;
+  const term=$("studentSearch").value.trim().toLowerCase();
+
+  const list=students.filter(s=>
+    (!cid||s.class_id===cid)&&
+    (!term||`${s.name} ${s.admission_no||""}`.toLowerCase().includes(term))
+  );
+
+  $("studentCards").innerHTML=list.map(s=>
+    `<div class="card row">
+      <div>
+        <b>${esc(s.name)}</b>
+        <div class="muted">${esc(classById(s.class_id)?.name||"")} · رول ${rollOf(s)} · داخلہ ${esc(s.admission_no||"-")}</div>
+        <div class="muted">${esc(s.father_name||"")}</div>
+      </div>
+    </div>`
+  ).join("")||"کوئی طالب علم نہیں۔";
 }
+
 async function addStudent(){
   const cid=$("studentFilter").value||$("diaryClass").value;
+
   if(!cid)return toast("پہلے کلاس منتخب کریں۔",true);
-  const name=prompt("طالب علم کا نام:");if(!name?.trim())return;
+
+  const name=prompt("طالب علم کا نام:");
+  if(!name?.trim())return;
+
   const admission=prompt("داخلہ نمبر (اختیاری):")||"";
   const father=prompt("والد کا نام (اختیاری):")||"";
+
   try{
-    await q(sb.from("students").insert({class_id:cid,name:name.trim(),admission_no:admission.trim(),father_name:father.trim(),active:true}));
-    await loadData();toast("طالب علم شامل ہوگیا۔");
+    await q(sb.from("students").insert({
+      class_id:cid,
+      name:name.trim(),
+      admission_no:admission.trim(),
+      father_name:father.trim(),
+      active:true
+    }));
+
+    await loadData();
+    toast("طالب علم شامل ہوگیا۔");
+
   }catch(e){fail(e);}
 }
+
 function renderDiary(){
   if(!$("diaryDate").value)$("diaryDate").value=today();
-  const cid=$("diaryClass").value;const list=students.filter(s=>s.class_id===cid);
+
+  const cid=$("diaryClass").value;
+  const list=students.filter(s=>s.class_id===cid);
+
   $("diaryStudents").innerHTML=list.map(s=>{
-    const r=records.find(x=>x.student_id===s.id&&x.record_date===$("diaryDate").value);
+    const r=records.find(x=>
+      x.student_id===s.id&&x.record_date===$("diaryDate").value
+    );
+
     const owned=!r||r.created_by===user.id||isAdmin();
-    return `<div class="card" data-student="${s.id}"><b>${esc(s.name)} — رول ${rollOf(s)}</b>${r&&!owned?'<div class="status">یہ ریکارڈ دوسرے استاد نے درج کیا ہے؛ صرف پڑھ سکتے ہیں۔</div>':""}
-    <div class="record-grid">
-    ${field("حاضری","attendance",r?.attendance||"حاضر", "select",owned)}
-    ${field("سبق","lesson",r?.lesson||"", "text",owned)}
-    ${field("سبق کا معیار","lesson_quality",r?.lesson_quality||"", "text",owned)}
-    ${field("سبقی","sabqi",r?.sabqi||"", "text",owned)}
-    ${field("سبقی کا معیار","sabqi_quality",r?.sabqi_quality||"", "text",owned)}
-    ${field("منزل","manzil",r?.manzil||"", "text",owned)}
-    ${field("منزل کا معیار","manzil_quality",r?.manzil_quality||"", "text",owned)}
-    ${field("نوٹ","note",r?.note||"", "text",owned)}</div></div>`;
+
+    return `
+      <div class="card" data-student="${s.id}">
+        <b>${esc(s.name)} — رول ${rollOf(s)}</b>
+        ${r&&!owned?'<div class="status">یہ ریکارڈ دوسرے استاد نے درج کیا ہے؛ صرف پڑھ سکتے ہیں۔</div>':""}
+        <div class="record-grid">
+          ${field("حاضری","attendance",r?.attendance||"حاضر","select",owned)}
+          ${field("سبق","lesson",r?.lesson||"","text",owned)}
+          ${field("سبق کا معیار","lesson_quality",r?.lesson_quality||"","text",owned)}
+          ${field("سبقی","sabqi",r?.sabqi||"","text",owned)}
+          ${field("سبقی کا معیار","sabqi_quality",r?.sabqi_quality||"","text",owned)}
+          ${field("منزل","manzil",r?.manzil||"","text",owned)}
+          ${field("منزل کا معیار","manzil_quality",r?.manzil_quality||"","text",owned)}
+          ${field("نوٹ","note",r?.note||"","text",owned)}
+        </div>
+      </div>`;
   }).join("")||"اس کلاس میں طلبہ موجود نہیں۔";
 }
-function field(label,key,value,type,enabled){return `<div><label>${label}</label>${key==="attendance"?`<select data-key="${key}" ${enabled?"":"disabled"}><option ${value==="حاضر"?"selected":""}>حاضر</option><option ${value==="غیر حاضر"?"selected":""}>غیر حاضر</option><option ${value==="رخصت"?"selected":""}>رخصت</option></select>`:`<input data-key="${key}" value="${esc(value)}" ${enabled?"":"disabled"}></div>`}`;}
+
+function field(label,key,value,type,enabled){
+  return `
+    <div>
+      <label>${label}</label>
+      ${key==="attendance"
+        ?`<select data-key="${key}" ${enabled?"":"disabled"}>
+            <option ${value==="حاضر"?"selected":""}>حاضر</option>
+            <option ${value==="غیر حاضر"?"selected":""}>غیر حاضر</option>
+            <option ${value==="رخصت"?"selected":""}>رخصت</option>
+          </select>`
+        :`<input data-key="${key}" value="${esc(value)}" ${enabled?"":"disabled"}>`
+      }
+    </div>`;
+}
+
 async function saveDiary(){
-  const cid=$("diaryClass").value,date=$("diaryDate").value;
+  const cid=$("diaryClass").value;
+  const date=$("diaryDate").value;
+
   if(!cid||!date)return toast("کلاس اور تاریخ منتخب کریں۔",true);
+
   try{
     for(const card of document.querySelectorAll("#diaryStudents [data-student]")){
-      const sid=card.dataset.student,existing=records.find(r=>r.student_id===sid&&r.record_date===date);
-      const vals={};card.querySelectorAll("[data-key]").forEach(el=>vals[el.dataset.key]=el.value.trim());
+      const sid=card.dataset.student;
+
+      const existing=records.find(r=>
+        r.student_id===sid&&r.record_date===date
+      );
+
+      const vals={};
+
+      card.querySelectorAll("[data-key]").forEach(el=>{
+        vals[el.dataset.key]=el.value.trim();
+      });
+
       if(existing&&existing.created_by!==user.id&&!isAdmin())continue;
-      if(!vals.lesson||!vals.sabqi||!vals.manzil)throw new Error("ہر طالب علم کے لیے سبق، سبقی اور منزل لازمی درج کریں۔");
-      const row={student_id:sid,class_id:cid,record_date:date,created_by:existing?.created_by||user.id,...vals};
+
+      if(!vals.lesson||!vals.sabqi||!vals.manzil){
+        throw new Error("ہر طالب علم کے لیے سبق، سبقی اور منزل لازمی درج کریں۔");
+      }
+
+      const row={
+        student_id:sid,
+        class_id:cid,
+        record_date:date,
+        created_by:existing?.created_by||user.id,
+        ...vals
+      };
+
       if(existing)row.id=existing.id;
-      await q(sb.from("daily_records").upsert(row,{onConflict:"student_id,record_date"}));
+
+      await q(
+        sb.from("daily_records")
+          .upsert(row,{onConflict:"student_id,record_date"})
+      );
     }
-    await loadData();toast("روزانہ ریکارڈ محفوظ ہوگیا۔");
+
+    await loadData();
+    toast("روزانہ ریکارڈ محفوظ ہوگیا۔");
+
   }catch(e){fail(e);}
 }
-async function loadRecordStudents(){const cid=$("recordClass").value;setOptions("recordStudent",students.filter(s=>s.class_id===cid),"تمام طلبہ");}
-function showRecords(){
-  const date=$("recordDate").value,cid=$("recordClass").value,sid=$("recordStudent").value;
-  lastCsv=records.filter(r=>(!date||r.record_date===date)&&(!cid||r.class_id===cid)&&(!sid||r.student_id===sid));
-  $("recordResults").innerHTML=lastCsv.map(r=>{const s=studentById(r.student_id);return `<div class="card"><b>${esc(s?.name||"")}</b> · ${esc(r.record_date)}<p>سبق: ${esc(r.lesson)} | سبقی: ${esc(r.sabqi)} | منزل: ${esc(r.manzil)}</p><div class="muted">${esc(r.note||"")}</div></div>`}).join("")||"کوئی ریکارڈ نہیں ملا۔";
+
+async function loadRecordStudents(){
+  const cid=$("recordClass").value;
+
+  setOptions(
+    "recordStudent",
+    students.filter(s=>s.class_id===cid),
+    "تمام طلبہ"
+  );
 }
+
+function showRecords(){
+  const date=$("recordDate").value;
+  const cid=$("recordClass").value;
+  const sid=$("recordStudent").value;
+
+  lastCsv=records.filter(r=>
+    (!date||r.record_date===date)&&
+    (!cid||r.class_id===cid)&&
+    (!sid||r.student_id===sid)
+  );
+
+  $("recordResults").innerHTML=lastCsv.map(r=>{
+    const s=studentById(r.student_id);
+
+    return `
+      <div class="card">
+        <b>${esc(s?.name||"")}</b> · ${esc(r.record_date)}
+        <p>سبق: ${esc(r.lesson)} | سبقی: ${esc(r.sabqi)} | منزل: ${esc(r.manzil)}</p>
+        <div class="muted">${esc(r.note||"")}</div>
+      </div>`;
+  }).join("")||"کوئی ریکارڈ نہیں ملا۔";
+}
+
 function exportCsv(){
   const rows=lastCsv.length?lastCsv:records;
-  const cols=["record_date","student_id","attendance","lesson","lesson_quality","sabqi","sabqi_quality","manzil","manzil_quality","note"];
-  const csv=[cols.join(","),...rows.map(r=>cols.map(k=>'"'+String(r[k]??"").replace(/"/g,'""')+'"').join(","))].join("\n");
-  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}));a.download="jamia-records.csv";a.click();URL.revokeObjectURL(a.href);
+
+  const cols=[
+    "record_date","student_id","attendance","lesson",
+    "lesson_quality","sabqi","sabqi_quality",
+    "manzil","manzil_quality","note"
+  ];
+
+  const csv=[
+    cols.join(","),
+    ...rows.map(r=>
+      cols.map(k=>'"'+String(r[k]??"").replace(/"/g,'""')+'"').join(",")
+    )
+  ].join("\n");
+
+  const a=document.createElement("a");
+
+  a.href=window.URL.createObjectURL(
+    new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"})
+  );
+
+  a.download="jamia-records.csv";
+  a.click();
+
+  window.URL.revokeObjectURL(a.href);
 }
+
 async function createClass(){
-  const name=$("newClassName").value.trim();if(!name)return toast("کلاس کا نام لکھیں۔",true);
-  try{await q(sb.from("classes").insert({name}));$("newClassName").value="";await loadData();toast("کلاس بن گئی۔");}catch(e){fail(e);}
+  const name=$("newClassName").value.trim();
+
+  if(!name)return toast("کلاس کا نام لکھیں۔",true);
+
+  try{
+    await q(sb.from("classes").insert({name}));
+
+    $("newClassName").value="";
+    await loadData();
+    toast("کلاس بن گئی۔");
+
+  }catch(e){fail(e);}
 }
+
 async function renderAdmin(){
-  const profiles=await q(sb.from("profiles").select("*").order("created_at",{ascending:false}));
-  $("teacherList").innerHTML=profiles.map(p=>`<div class="card"><b>${esc(p.full_name||p.email||p.id)}</b> <span class="muted">${esc(p.email||"")}</span><div class="muted">${p.role} · ${p.active?"فعال":"غیر فعال"}</div>${p.role!=="admin"?`<button data-approve="${p.id}">${p.active?"غیر فعال کریں":"منظور کریں"}</button>`:""}</div>`).join("");
-  document.querySelectorAll("[data-approve]").forEach(b=>b.onclick=()=>toggleTeacher(b.dataset.approve,profiles.find(p=>p.id===b.dataset.approve)));
+  const profiles=await q(
+    sb.from("profiles").select("*").order("created_at",{ascending:false})
+  );
+
+  $("teacherList").innerHTML=profiles.map(p=>
+    `<div class="card">
+      <b>${esc(p.full_name||p.email||p.id)}</b>
+      <span class="muted">${esc(p.email||"")}</span>
+      <div class="muted">${p.role} · ${p.active?"فعال":"غیر فعال"}</div>
+      ${p.role!=="admin"
+        ?`<button data-approve="${p.id}">${p.active?"غیر فعال کریں":"منظور کریں"}</button>`
+        :""}
+    </div>`
+  ).join("");
+
+  document.querySelectorAll("[data-approve]").forEach(b=>{
+    b.onclick=()=>toggleTeacher(
+      b.dataset.approve,
+      profiles.find(p=>p.id===b.dataset.approve)
+    );
+  });
+
   $("adminClasses").innerHTML=classes.map(c=>{
-    const assigned=assignments.filter(a=>a.class_id===c.id).map(a=>a.profiles).filter(Boolean);
-    return `<div class="card"><b>${esc(c.name)}</b><div class="muted">مقرر اساتذہ: ${assigned.map(p=>esc(p.full_name||p.email)).join("، ")||"کوئی نہیں"}</div>
-    <label>استاد مقرر کریں</label><select data-assign-class="${c.id}"><option value="">استاد منتخب کریں</option>${profiles.filter(p=>p.role==="teacher"&&p.active).map(p=>`<option value="${p.id}">${esc(p.full_name||p.email)}</option>`).join("")}</select><button data-assign="${c.id}">مقرر کریں</button>
-    <button class="secondary" data-unassign="${c.id}">اس کلاس کی تمام اسائنمنٹس ختم کریں</button></div>`;
+    const assigned=assignments
+      .filter(a=>a.class_id===c.id)
+      .map(a=>a.profiles)
+      .filter(Boolean);
+
+    return `
+      <div class="card">
+        <b>${esc(c.name)}</b>
+        <div class="muted">مقرر اساتذہ: ${assigned.map(p=>esc(p.full_name||p.email)).join("، ")||"کوئی نہیں"}</div>
+        <label>استاد مقرر کریں</label>
+        <select data-assign-class="${c.id}">
+          <option value="">استاد منتخب کریں</option>
+          ${profiles.filter(p=>p.role==="teacher"&&p.active).map(p=>
+            `<option value="${p.id}">${esc(p.full_name||p.email)}</option>`
+          ).join("")}
+        </select>
+        <button data-assign="${c.id}">مقرر کریں</button>
+        <button class="secondary" data-unassign="${c.id}">اس کلاس کی تمام اسائنمنٹس ختم کریں</button>
+      </div>`;
   }).join("");
-  document.querySelectorAll("[data-assign]").forEach(b=>b.onclick=()=>assignTeacher(b.dataset.assign));
-  document.querySelectorAll("[data-unassign]").forEach(b=>b.onclick=()=>unassignClass(b.dataset.unassign));
+
+  document.querySelectorAll("[data-assign]").forEach(b=>{
+    b.onclick=()=>assignTeacher(b.dataset.assign);
+  });
+
+  document.querySelectorAll("[data-unassign]").forEach(b=>{
+    b.onclick=()=>unassignClass(b.dataset.unassign);
+  });
 }
+
 async function toggleTeacher(id,p){
-  try{await q(sb.from("profiles").update({active:!p.active}).eq("id",id));await renderAdmin();toast("استاد کی حیثیت تبدیل ہوگئی۔");}catch(e){fail(e);}
+  try{
+    await q(
+      sb.from("profiles").update({active:!p.active}).eq("id",id)
+    );
+
+    await renderAdmin();
+    toast("استاد کی حیثیت تبدیل ہوگئی۔");
+
+  }catch(e){fail(e);}
 }
+
 async function assignTeacher(classId){
-  const teacherId=document.querySelector(`[data-assign-class="${classId}"]`).value;if(!teacherId)return toast("استاد منتخب کریں۔",true);
-  try{await q(sb.from("class_teachers").upsert({class_id:classId,teacher_id:teacherId},{onConflict:"class_id,teacher_id"}));await loadData();await renderAdmin();toast("کلاس استاد کو الاٹ ہوگئی۔");}catch(e){fail(e);}
+  const teacherId=document.querySelector(
+    `[data-assign-class="${classId}"]`
+  ).value;
+
+  if(!teacherId)return toast("استاد منتخب کریں۔",true);
+
+  try{
+    await q(
+      sb.from("class_teachers").upsert(
+        {class_id:classId,teacher_id:teacherId},
+        {onConflict:"class_id,teacher_id"}
+      )
+    );
+
+    await loadData();
+    await renderAdmin();
+    toast("کلاس استاد کو الاٹ ہوگئی۔");
+
+  }catch(e){fail(e);}
 }
+
 async function unassignClass(classId){
   if(!confirm("کیا اس کلاس کے تمام اساتذہ کی اسائنمنٹ ختم کرنی ہے؟"))return;
-  try{await q(sb.from("class_teachers").delete().eq("class_id",classId));await loadData();await renderAdmin();toast("اسائنمنٹ ختم ہوگئی۔");}catch(e){fail(e);}
+
+  try{
+    await q(
+      sb.from("class_teachers").delete().eq("class_id",classId)
+    );
+
+    await loadData();
+    await renderAdmin();
+    toast("اسائنمنٹ ختم ہوگئی۔");
+
+  }catch(e){fail(e);}
 }
 
 /* Compatibility adapter for the existing pdf.js, if retained. */
 window.JamiaApp={
-  get app(){return {db:{records:Object.fromEntries(records.map(r=>[r.record_date,{...(this.db?.records?.[r.record_date]||{}),[r.student_id]:r}]))}};},
+  get app(){
+    return {
+      db:{
+        records:Object.fromEntries(
+          records.map(r=>[
+            r.record_date,
+            {
+              ...(this.db?.records?.[r.record_date]||{}),
+              [r.student_id]:r
+            }
+          ])
+        )
+      }
+    };
+  },
   getFilteredRecords:()=>records,
-  studentById,classById,rollOf
+  studentById,
+  classById,
+  rollOf
 };
+
 document.addEventListener("DOMContentLoaded",init);
+
 })();
