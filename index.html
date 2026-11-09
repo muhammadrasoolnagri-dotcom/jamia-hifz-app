@@ -1,3 +1,4 @@
+<!doctype html>
 <html lang="ur" dir="rtl">
 <head>
   <meta charset="utf-8">
@@ -45,85 +46,10 @@
   </section>
 
   <section id="appView" class="hidden">
-    <div class="panel row"><div><strong id="welcome"></strong><div id="roleLabel" class="muted"></div></div><div id="todayLabel"></div></div>
-    <nav class="tabs">
-      <button data-tab="dashboard" class="active">ڈیش بورڈ</button>
-      <button data-tab="students">طلبہ</button>
-      <button data-tab="diary">روزانہ ڈائری</button>
-      <button data-tab="records">ریکارڈز</button>
-      <button data-tab="admin" id="adminTab" class="hidden">انتظامیہ</button>
-    </nav>
-    <section id="dashboardTab" class="panel">
-      <h2>ڈیش بورڈ</h2><div id="stats" class="grid"></div><h3>آپ کی کلاسیں</h3><div id="classCards" class="grid"></div>
-    </section>
-    <section id="studentsTab" class="panel hidden">
-      <div class="row"><h2>طلبہ</h2><button id="addStudentBtn">نیا طالب علم</button></div>
-      <div class="grid"><div><label>کلاس</label><select id="studentFilter"></select></div><div><label>تلاش</label><input id="studentSearch" placeholder="طالب علم کا نام یا رول نمبر"></div></div>
-      <div id="studentCards"></div>
-    </section>
-    <section id="diaryTab" class="panel hidden">
-      <h2>روزانہ حاضری و سبق</h2>
-      <div class="grid"><div><label>تاریخ</label><input id="diaryDate" type="date"></div><div><label>کلاس</label><select id="diaryClass"></select></div></div>
-      <div id="diaryStudents"></div><button id="saveDiary">ریکارڈ محفوظ کریں</button>
-      <div class="muted">سبق، سبقی اور منزل تینوں لازمی ہیں۔ وضاحت کے لیے آزاد تحریر درج کر سکتے ہیں۔</div>
-    </section>
-    <section id="recordsTab" class="panel hidden">
-      <h2>ریکارڈز</h2><div class="grid">
-        <div><label>تاریخ</label><input id="recordDate" type="date"></div>
-        <div><label>کلاس</label><select id="recordClass"></select></div>
-        <div><label>طالب علم</label><select id="recordStudent"></select></div>
-      </div>
-      <button id="showRecords">ریکارڈ دکھائیں</button><button id="exportCsv" class="secondary">CSV ایکسپورٹ</button>
-      <div id="recordResults"></div>
- html>
-<html lang="ur" dir="rtl">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>جامعہ اشرف العلوم باغبانپورہ — ڈیجیٹل تعلیمی مینجمنٹ</title>
-  <link rel="stylesheet" href="style.css">
-  <style>
-    :root{font-family:system-ui,"Noto Nastaliq Urdu",Arial,sans-serif;color:#172033;background:#f4f6fa}
-    *{box-sizing:border-box}body{margin:0}button,input,select,textarea{font:inherit}
-    .top{background:#123b32;color:white;padding:18px 5%;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
-    .top h1{font-size:21px;margin:0}.top small{opacity:.8}.wrap{max-width:1100px;margin:22px auto;padding:0 14px}
-    .panel,.card{background:white;border:1px solid #e2e7ed;border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 3px 14px #14213d0a}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-    label{display:block;font-weight:600;margin:9px 0 5px}input,select,textarea{width:100%;padding:10px;border:1px solid #ccd4df;border-radius:8px;background:white}
-    button{border:0;border-radius:9px;padding:10px 15px;background:#176b55;color:white;cursor:pointer;margin:4px}
-    button.secondary{background:#e9eef2;color:#203040}button.danger{background:#a83232}
-    button:disabled{opacity:.45;cursor:not-allowed}.muted{color:#697586;font-size:13px}
-    .hidden{display:none!important}.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-    .tabs button{background:#e3ebe8;color:#164638}.tabs button.active{background:#176b55;color:white}
-    .row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-    table{width:100%;border-collapse:collapse}th,td{text-align:right;padding:9px;border-bottom:1px solid #e8edf1;vertical-align:top}
-    .status{padding:10px;border-radius:8px;background:#fff5d9;color:#624900;margin:10px 0}
-    .ok{background:#e6f6ed;color:#145b36}.bad{background:#fde9e9;color:#8b1e1e}
-    .record-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
-    footer{text-align:center;color:#77808d;padding:25px;font-size:13px}
-  </style>
-</head>
-<body>
-<header class="top">
-  <div><h1>جامعہ اشرف العلوم باغبانپورہ</h1><small>ڈیجیٹل تعلیمی مینجمنٹ سسٹم</small></div>
-  <div id="userBar" class="hidden"><span id="userEmail"></span> <button id="logoutBtn" class="secondary">لاگ آؤٹ</button></div>
-</header>
-<main class="wrap">
-  <section id="loginView" class="panel">
-    <h2>اکاؤنٹ میں داخل ہوں</h2>
-    <p class="muted">صرف منظور شدہ اساتذہ اور منتظمین کے لیے۔</p>
-    <button id="loginBtn">Google کے ذریعے لاگ اِن</button>
-    <div id="loginMessage" class="status hidden"></div>
-  </section>
-
-  <section id="pendingView" class="panel hidden">
-    <h2>منظوری درکار ہے</h2>
-    <p>آپ کا اکاؤنٹ بن گیا ہے، لیکن منتظم کی منظوری کے بعد ہی ایپ استعمال کر سکیں گے۔</p>
-    <button id="pendingLogout" class="secondary">لاگ آؤٹ</button>
-  </section>
-
-  <section id="appView" class="hidden">
-    <div class="panel row"><div><strong id="welcome"></strong><div id="roleLabel" class="muted"></div></div><div id="todayLabel"></div></div>
+    <div class="panel row">
+      <div><strong id="welcome"></strong><div id="roleLabel" class="muted"></div></div>
+      <div><span id="todayLabel"></span><button id="logoutBtnMain" class="secondary">لاگ آؤٹ</button></div>
+    </div>
     <nav class="tabs">
       <button data-tab="dashboard" class="active">ڈیش بورڈ</button>
       <button data-tab="students">طلبہ</button>
