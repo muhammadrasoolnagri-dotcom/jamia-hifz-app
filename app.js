@@ -1,16 +1,19 @@
-
 /* Jamia Hifz/Nazra Management — Supabase client */
 (() => {
 "use strict";
 
-const SUPABASE_URL = window.SUPABASE_URL;
+const URL = window.SUPABASE_URL;
 const KEY = window.SUPABASE_ANON_KEY;
 
 const $ = id => document.getElementById(id);
 const today = () => new Date().toLocaleDateString("en-CA", {timeZone:"Asia/Karachi"});
-const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
-let sb, user, profile, classes=[], students=[], records=[], assignments=[], lastCsv=[];
+const esc = s => String(s ?? "").replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+}[c]));
+
+let sb, user, profile;
+let classes=[], students=[], records=[], assignments=[], lastCsv=[];
 
 const isAdmin = () => profile?.role === "admin";
 
@@ -34,14 +37,18 @@ const q = async promise => {
   return data;
 };
 
-const show = (id,on=true) => $(id)?.classList.toggle("hidden",!on);
+const show = (id,on=true) =>
+  $(id)?.classList.toggle("hidden",!on);
 
 const setOptions = (id,rows,first="کلاس منتخب کریں") => {
   const el=$(id);
   if(!el)return;
+
   const old=el.value;
+
   el.innerHTML=`<option value="">${first}</option>`+
     rows.map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("");
+
   if(rows.some(x=>x.id===old))el.value=old;
 };
 
@@ -57,12 +64,13 @@ const rollOf = s =>
 
 async function init(){
   if(!window.supabase || !KEY || KEY.includes("PASTE_")){
-    $("loginMessage").textContent="index.html میں Supabase Publishable/anon key درج کریں۔";
+    $("loginMessage").textContent=
+      "index.html میں Supabase Publishable/anon key درج کریں۔";
     show("loginMessage");
     return;
   }
 
-  sb=window.supabase.createClient(SUPABASE_URL,KEY,{
+  sb=window.supabase.createClient(URL,KEY,{
     auth:{
       persistSession:true,
       autoRefreshToken:true,
@@ -122,12 +130,12 @@ function resetUI(){
   students=[];
   records=[];
   assignments=[];
+
   show("loginView");
   show("pendingView",false);
   show("appView",false);
   show("userBar",false);
 }
-
 async function boot(u){
   user=u;
 
@@ -150,9 +158,12 @@ async function boot(u){
 
     $("userEmail").textContent=u.email||"";
     $("welcome").textContent=profile.full_name||u.email||"صارف";
-    $("roleLabel").textContent=isAdmin()?"منتظم / مکمل اختیار":"استاد";
+    $("roleLabel").textContent=isAdmin()
+      ?"منتظم / مکمل اختیار"
+      :"استاد";
 
     show("adminTab",isAdmin());
+
     $("todayLabel").textContent=today();
 
     await loadData();
@@ -219,12 +230,23 @@ async function loadData(){
   renderStudents();
   renderDiary();
 
-  if(isAdmin())renderAdmin();
+  if(isAdmin())await renderAdmin();
 }
 
+/* درست شدہ ٹیب نیویگیشن:
+   انتظامیہ کا بٹن adminTab ہے،
+   جبکہ اصل پینل adminTabPanel ہے۔ */
 function switchTab(name){
-  ["dashboard","students","diary","records","admin"].forEach(t=>{
-    show(t+"Tab",t===name);
+  const panels={
+    dashboard:"dashboardTab",
+    students:"studentsTab",
+    diary:"diaryTab",
+    records:"recordsTab",
+    admin:"adminTabPanel"
+  };
+
+  Object.entries(panels).forEach(([tab,id])=>{
+    show(id,tab===name);
   });
 
   document.querySelectorAll("[data-tab]").forEach(b=>{
@@ -232,6 +254,7 @@ function switchTab(name){
   });
 
   if(name==="diary")renderDiary();
+
   if(name==="admin"&&isAdmin())renderAdmin();
 }
 
@@ -241,12 +264,19 @@ function renderDashboard(){
     ["طلبہ",students.length],
     ["آج کے ریکارڈ",records.filter(r=>r.record_date===today()).length]
   ].map(([a,b])=>
-    `<div class="card"><div class="muted">${a}</div><h2>${b}</h2></div>`
+    `<div class="card">
+      <div class="muted">${a}</div>
+      <h2>${b}</h2>
+    </div>`
   ).join("");
 
   $("classCards").innerHTML=classes.map(c=>
-    `<div class="card"><b>${esc(c.name)}</b>
-    <div class="muted">${students.filter(s=>s.class_id===c.id).length} طلبہ</div></div>`
+    `<div class="card">
+      <b>${esc(c.name)}</b>
+      <div class="muted">
+        ${students.filter(s=>s.class_id===c.id).length} طلبہ
+      </div>
+    </div>`
   ).join("")||"ابھی کوئی کلاس الاٹ نہیں۔";
 }
 
@@ -263,7 +293,11 @@ function renderStudents(){
     `<div class="card row">
       <div>
         <b>${esc(s.name)}</b>
-        <div class="muted">${esc(classById(s.class_id)?.name||"")} · رول ${rollOf(s)} · داخلہ ${esc(s.admission_no||"-")}</div>
+        <div class="muted">
+          ${esc(classById(s.class_id)?.name||"")}
+          · رول ${rollOf(s)}
+          · داخلہ ${esc(s.admission_no||"-")}
+        </div>
         <div class="muted">${esc(s.father_name||"")}</div>
       </div>
     </div>`
@@ -295,7 +329,6 @@ async function addStudent(){
 
   }catch(e){fail(e);}
 }
-
 function renderDiary(){
   if(!$("diaryDate").value)$("diaryDate").value=today();
 
@@ -312,22 +345,24 @@ function renderDiary(){
     return `
       <div class="card" data-student="${s.id}">
         <b>${esc(s.name)} — رول ${rollOf(s)}</b>
-        ${r&&!owned?'<div class="status">یہ ریکارڈ دوسرے استاد نے درج کیا ہے؛ صرف پڑھ سکتے ہیں۔</div>':""}
+        ${r&&!owned
+          ?'<div class="status">یہ ریکارڈ دوسرے استاد نے درج کیا ہے؛ صرف پڑھ سکتے ہیں۔</div>'
+          :""}
         <div class="record-grid">
-          ${field("حاضری","attendance",r?.attendance||"حاضر","select",owned)}
-          ${field("سبق","lesson",r?.lesson||"","text",owned)}
-          ${field("سبق کا معیار","lesson_quality",r?.lesson_quality||"","text",owned)}
-          ${field("سبقی","sabqi",r?.sabqi||"","text",owned)}
-          ${field("سبقی کا معیار","sabqi_quality",r?.sabqi_quality||"","text",owned)}
-          ${field("منزل","manzil",r?.manzil||"","text",owned)}
-          ${field("منزل کا معیار","manzil_quality",r?.manzil_quality||"","text",owned)}
-          ${field("نوٹ","note",r?.note||"","text",owned)}
+          ${field("حاضری","attendance",r?.attendance||"حاضر",owned)}
+          ${field("سبق","lesson",r?.lesson||"",owned)}
+          ${field("سبق کا معیار","lesson_quality",r?.lesson_quality||"",owned)}
+          ${field("سبقی","sabqi",r?.sabqi||"",owned)}
+          ${field("سبقی کا معیار","sabqi_quality",r?.sabqi_quality||"",owned)}
+          ${field("منزل","manzil",r?.manzil||"",owned)}
+          ${field("منزل کا معیار","manzil_quality",r?.manzil_quality||"",owned)}
+          ${field("نوٹ","note",r?.note||"",owned)}
         </div>
       </div>`;
   }).join("")||"اس کلاس میں طلبہ موجود نہیں۔";
 }
 
-function field(label,key,value,type,enabled){
+function field(label,key,value,enabled){
   return `
     <div>
       <label>${label}</label>
@@ -475,7 +510,7 @@ async function renderAdmin(){
     `<div class="card">
       <b>${esc(p.full_name||p.email||p.id)}</b>
       <span class="muted">${esc(p.email||"")}</span>
-      <div class="muted">${p.role} · ${p.active?"فعال":"غیر فعال"}</div>
+      <div class="muted">${esc(p.role)} · ${p.active?"فعال":"غیر فعال"}</div>
       ${p.role!=="admin"
         ?`<button data-approve="${p.id}">${p.active?"غیر فعال کریں":"منظور کریں"}</button>`
         :""}
@@ -498,7 +533,9 @@ async function renderAdmin(){
     return `
       <div class="card">
         <b>${esc(c.name)}</b>
-        <div class="muted">مقرر اساتذہ: ${assigned.map(p=>esc(p.full_name||p.email)).join("، ")||"کوئی نہیں"}</div>
+        <div class="muted">
+          مقرر اساتذہ: ${assigned.map(p=>esc(p.full_name||p.email)).join("، ")||"کوئی نہیں"}
+        </div>
         <label>استاد مقرر کریں</label>
         <select data-assign-class="${c.id}">
           <option value="">استاد منتخب کریں</option>
@@ -569,7 +606,7 @@ async function unassignClass(classId){
   }catch(e){fail(e);}
 }
 
-/* Compatibility adapter for the existing pdf.js, if retained. */
+/* PDF.js compatibility adapter */
 window.JamiaApp={
   get app(){
     return {
