@@ -1,55 +1,251 @@
+
 <!doctype html>
 <html lang="ur" dir="rtl">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>جامعہ اشرف العلوم باغبانپورہ — ڈیجیٹل تعلیمی مینجمنٹ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>جامعہ اشرف العلوم باغبانپورہ رجسٹرڈ</title>
   <link rel="stylesheet" href="style.css">
+
   <style>
-    :root{font-family:system-ui,"Noto Nastaliq Urdu",Arial,sans-serif;color:#172033;background:#f4f6fa}
-    *{box-sizing:border-box}body{margin:0}button,input,select,textarea{font:inherit}
-    .top{background:#123b32;color:white;padding:18px 5%;display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
-    .top h1{font-size:21px;margin:0}.top small{opacity:.8}.wrap{max-width:1100px;margin:22px auto;padding:0 14px}
-    .panel,.card{background:white;border:1px solid #e2e7ed;border-radius:14px;padding:18px;margin-bottom:16px;box-shadow:0 3px 14px #14213d0a}
-    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
-    label{display:block;font-weight:600;margin:9px 0 5px}input,select,textarea{width:100%;padding:10px;border:1px solid #ccd4df;border-radius:8px;background:white}
-    button{border:0;border-radius:9px;padding:10px 15px;background:#176b55;color:white;cursor:pointer;margin:4px}
-    button.secondary{background:#e9eef2;color:#203040}button.danger{background:#a83232}
-    button:disabled{opacity:.45;cursor:not-allowed}.muted{color:#697586;font-size:13px}
-    .hidden{display:none!important}.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-    .tabs button{background:#e3ebe8;color:#164638}.tabs button.active{background:#176b55;color:white}
-    .row{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap}
-    table{width:100%;border-collapse:collapse}th,td{text-align:right;padding:9px;border-bottom:1px solid #e8edf1;vertical-align:top}
-    .status{padding:10px;border-radius:8px;background:#fff5d9;color:#624900;margin:10px 0}
-    .ok{background:#e6f6ed;color:#145b36}.bad{background:#fde9e9;color:#8b1e1e}
-    .record-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px}
-    footer{text-align:center;color:#77808d;padding:25px;font-size:13px}
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #f3f6f4;
+      color: #183b30;
+      font-family: system-ui, "Noto Nastaliq Urdu", Arial, sans-serif;
+    }
+    button { font: inherit; cursor: pointer; }
+    .top {
+      background: #123d32;
+      color: white;
+      padding: 20px 5%;
+      text-align: center;
+    }
+    .top h1 { margin: 0; font-size: 22px; }
+    .top p { margin: 5px 0 0; color: #d4e7df; font-size: 13px; }
+    .wrap { max-width: 1000px; margin: 25px auto; padding: 0 14px; }
+    .panel {
+      background: white;
+      border: 1px solid #e0e9e3;
+      border-radius: 16px;
+      padding: 22px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 16px #173d3010;
+    }
+    .login-panel {
+      max-width: 500px;
+      margin: 35px auto;
+      text-align: center;
+    }
+    .logo {
+      width: 70px;
+      height: 70px;
+      margin: 0 auto 12px;
+      border-radius: 20px;
+      background: #e5f1e9;
+      color: #145447;
+      display: grid;
+      place-items: center;
+      font-size: 30px;
+      font-weight: bold;
+    }
+    .role-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 22px 0;
+    }
+    .role-btn {
+      padding: 18px 10px;
+      border: 2px solid #dce8e0;
+      border-radius: 13px;
+      background: #fff;
+      color: #245344;
+      font-weight: bold;
+    }
+    .role-btn.selected {
+      border-color: #176b55;
+      background: #eaf4ee;
+      color: #145447;
+    }
+    .role-btn span {
+      display: block;
+      font-size: 25px;
+      margin-bottom: 5px;
+    }
+    .primary-btn {
+      width: 100%;
+      padding: 13px;
+      border: 0;
+      border-radius: 10px;
+      background: #176b55;
+      color: white;
+      font-weight: bold;
+    }
+    .primary-btn:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+    }
+    .secondary-btn {
+      background: #e8efeb;
+      color: #234b3e;
+      border: 0;
+      border-radius: 9px;
+      padding: 10px 15px;
+    }
+    .hidden { display: none !important; }
+    .muted { color: #738078; font-size: 13px; }
+    .status {
+      margin-top: 13px;
+      padding: 10px;
+      border-radius: 8px;
+      background: #fff4d8;
+      color: #68521b;
+    }
+    .topbar-user {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .tabs {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      margin-bottom: 15px;
+    }
+    .tabs button {
+      border: 0;
+      border-radius: 9px;
+      padding: 10px 14px;
+      background: #e6eee9;
+      color: #245344;
+    }
+    .tabs button.active {
+      background: #176b55;
+      color: white;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit,minmax(190px,1fr));
+      gap: 12px;
+    }
+    label { display: block; margin: 9px 0 5px; font-weight: 600; }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccd9d0;
+      border-radius: 8px;
+      font: inherit;
+      background: white;
+    }
+    .card {
+      background: white;
+      border: 1px solid #e0e9e3;
+      border-radius: 12px;
+      padding: 15px;
+      margin: 10px 0;
+    }
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .danger { background: #a83232 !important; color: white !important; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td {
+      text-align: right;
+      padding: 9px;
+      border-bottom: 1px solid #e8eee9;
+    }
+    footer {
+      text-align: center;
+      color: #75847c;
+      padding: 25px;
+      font-size: 12px;
+    }
+    @media(max-width:480px) {
+      .top h1 { font-size: 18px; }
+      .panel { padding: 15px; }
+      .role-options { gap: 8px; }
+      .tabs button { flex: 1; }
+    }
   </style>
 </head>
+
 <body>
+
 <header class="top">
-  <div><h1>جامعہ اشرف العلوم باغبانپورہ</h1><small>ڈیجیٹل تعلیمی مینجمنٹ سسٹم</small></div>
-  <div id="userBar" class="hidden"><span id="userEmail"></span> <button id="logoutBtn" class="secondary">لاگ آؤٹ</button></div>
+  <h1>جامعہ اشرف العلوم باغبانپورہ رجسٹرڈ</h1>
+  <p>حفظ و ناظرہ ڈیجیٹل مینجمنٹ سسٹم</p>
 </header>
+
 <main class="wrap">
-  <section id="loginView" class="panel">
-    <h2>اکاؤنٹ میں داخل ہوں</h2>
-    <p class="muted">صرف منظور شدہ اساتذہ اور منتظمین کے لیے۔</p>
-    <button id="loginBtn">Google کے ذریعے لاگ اِن</button>
+
+  <!-- Login screen -->
+  <section id="loginView" class="panel login-panel">
+
+    <div class="logo">MR</div>
+
+    <h2>خوش آمدید</h2>
+    <p class="muted">اپنا اکاؤنٹ منتخب کرکے آگے بڑھیں۔</p>
+
+    <h3>آپ کون ہیں؟</h3>
+
+    <div class="role-options">
+
+      <button type="button" class="role-btn" id="roleSupervisor">
+        <span>🏛️</span>
+        نگران
+      </button>
+
+      <button type="button" class="role-btn" id="roleTeacher">
+        <span>📚</span>
+        استاد
+      </button>
+
+    </div>
+
+    <button id="loginBtn" class="primary-btn" disabled>
+      Google کے ذریعے لاگ اِن
+    </button>
+
     <div id="loginMessage" class="status hidden"></div>
+
+    <p class="muted">
+      صرف جامعہ کے منظور شدہ اساتذہ اور نگران کے لیے۔
+    </p>
+
   </section>
 
+  <!-- Pending approval -->
   <section id="pendingView" class="panel hidden">
     <h2>منظوری درکار ہے</h2>
-    <p>آپ کا اکاؤنٹ بن گیا ہے، لیکن منتظم کی منظوری کے بعد ہی ایپ استعمال کر سکیں گے۔</p>
-    <button id="pendingLogout" class="secondary">لاگ آؤٹ</button>
+    <p>آپ کا اکاؤنٹ منتظم کی منظوری کا منتظر ہے۔</p>
+    <button id="pendingLogout" class="secondary-btn">لاگ آؤٹ</button>
   </section>
 
+  <!-- Main application -->
   <section id="appView" class="hidden">
-    <div class="panel row">
-      <div><strong id="welcome"></strong><div id="roleLabel" class="muted"></div></div>
-      <div><span id="todayLabel"></span><button id="logoutBtnMain" class="secondary">لاگ آؤٹ</button></div>
+
+    <div class="panel topbar-user">
+      <div>
+        <strong id="welcome"></strong>
+        <div id="roleLabel" class="muted"></div>
+        <div id="userEmail" class="muted"></div>
+      </div>
+
+      <button id="logoutBtnMain" class="secondary-btn">
+        لاگ آؤٹ
+      </button>
+
+      <span id="todayLabel"></span>
     </div>
+
     <nav class="tabs">
       <button data-tab="dashboard" class="active">ڈیش بورڈ</button>
       <button data-tab="students">طلبہ</button>
@@ -57,47 +253,155 @@
       <button data-tab="records">ریکارڈز</button>
       <button data-tab="admin" id="adminTab" class="hidden">انتظامیہ</button>
     </nav>
+
     <section id="dashboardTab" class="panel">
-      <h2>ڈیش بورڈ</h2><div id="stats" class="grid"></div><h3>آپ کی کلاسیں</h3><div id="classCards" class="grid"></div>
+      <h2>ڈیش بورڈ</h2>
+      <div id="stats" class="grid"></div>
+      <h3>آپ کی کلاسیں</h3>
+      <div id="classCards" class="grid"></div>
     </section>
+
     <section id="studentsTab" class="panel hidden">
-      <div class="row"><h2>طلبہ</h2><button id="addStudentBtn">نیا طالب علم</button></div>
-      <div class="grid"><div><label>کلاس</label><select id="studentFilter"></select></div><div><label>تلاش</label><input id="studentSearch" placeholder="طالب علم کا نام یا رول نمبر"></div></div>
+      <div class="row">
+        <h2>طلبہ</h2>
+        <button id="addStudentBtn">نیا طالب علم</button>
+      </div>
+
+      <div class="grid">
+        <div>
+          <label>کلاس</label>
+          <select id="studentFilter"></select>
+        </div>
+        <div>
+          <label>تلاش</label>
+          <input id="studentSearch" placeholder="نام یا رول نمبر">
+        </div>
+      </div>
+
       <div id="studentCards"></div>
     </section>
+
     <section id="diaryTab" class="panel hidden">
       <h2>روزانہ حاضری و سبق</h2>
-      <div class="grid"><div><label>تاریخ</label><input id="diaryDate" type="date"></div><div><label>کلاس</label><select id="diaryClass"></select></div></div>
-      <div id="diaryStudents"></div><button id="saveDiary">ریکارڈ محفوظ کریں</button>
-      <div class="muted">سبق، سبقی اور منزل تینوں لازمی ہیں۔ وضاحت کے لیے آزاد تحریر درج کر سکتے ہیں۔</div>
-    </section>
-    <section id="recordsTab" class="panel hidden">
-      <h2>ریکارڈز</h2><div class="grid">
-        <div><label>تاریخ</label><input id="recordDate" type="date"></div>
-        <div><label>کلاس</label><select id="recordClass"></select></div>
-        <div><label>طالب علم</label><select id="recordStudent"></select></div>
+
+      <div class="grid">
+        <div>
+          <label>تاریخ</label>
+          <input id="diaryDate" type="date">
+        </div>
+        <div>
+          <label>کلاس</label>
+          <select id="diaryClass"></select>
+        </div>
       </div>
-      <button id="showRecords">ریکارڈ دکھائیں</button><button id="exportCsv" class="secondary">CSV ایکسپورٹ</button>
+
+      <div id="diaryStudents"></div>
+
+      <button id="saveDiary">ریکارڈ محفوظ کریں</button>
+    </section>
+
+    <section id="recordsTab" class="panel hidden">
+      <h2>طلبہ کے ریکارڈز</h2>
+
+      <div class="grid">
+        <div>
+          <label>تاریخ</label>
+          <input id="recordDate" type="date">
+        </div>
+        <div>
+          <label>کلاس</label>
+          <select id="recordClass"></select>
+        </div>
+        <div>
+          <label>طالب علم</label>
+          <select id="recordStudent"></select>
+        </div>
+      </div>
+
+      <button id="showRecords">ریکارڈ دکھائیں</button>
+      <button id="exportCsv" class="secondary-btn">CSV ایکسپورٹ</button>
+
       <div id="recordResults"></div>
     </section>
+
     <section id="adminTabPanel" class="panel hidden">
       <h2>انتظامیہ</h2>
+
       <h3>اساتذہ کی منظوری اور کلاس الاٹمنٹ</h3>
       <div id="teacherList"></div>
-      <hr><h3>کلاس بنائیں</h3>
-      <div class="grid"><div><label>کلاس کا نام</label><input id="newClassName"></div><div class="row" style="align-items:end"><button id="createClassBtn">کلاس بنائیں</button></div></div>
-      <h3>کلاسوں کی تفصیل</h3><div id="adminClasses"></div>
+
+      <hr>
+
+      <h3>نئی کلاس بنائیں</h3>
+
+      <label>کلاس کا نام</label>
+      <input id="newClassName" placeholder="مثلاً درجہ اول">
+
+      <button id="createClassBtn">کلاس بنائیں</button>
+
+      <h3>کلاسوں کی تفصیل</h3>
+      <div id="adminClasses"></div>
     </section>
+
   </section>
+
   <div id="toast" class="status hidden"></div>
+
 </main>
-<footer>MR · Muhammad Rasoolnagri · CREATOR / DEVELOPER</footer>
+
+<footer>
+  MR · محمد رسولنگری
+  <br>
+  Creator / Developer
+</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
+  /*
+    یہاں اپنے پرانے index.html والی
+    Supabase URL اور Publishable Key
+    بالکل اسی طرح برقرار رکھیں۔
+  */
+
   window.SUPABASE_URL = "https://rwpozxityburcnyktcbx.supabase.co";
-  window.SUPABASE_ANON_KEY = "sb_publishable_04P4c8zi0YweXI0P89tKbA_NUXJEoFZ";
+
+  window.SUPABASE_ANON_KEY = "اپنی پرانی فائل والی Supabase Publishable Key یہاں پیسٹ کریں";
+
+  // نگران یا استاد کا انتخاب
+  let selectedRole = "";
+
+  const supervisorBtn = document.getElementById("roleSupervisor");
+  const teacherBtn = document.getElementById("roleTeacher");
+  const loginBtn = document.getElementById("loginBtn");
+
+  function chooseRole(role) {
+    selectedRole = role;
+
+    supervisorBtn.classList.toggle(
+      "selected", role === "supervisor"
+    );
+
+    teacherBtn.classList.toggle(
+      "selected", role === "teacher"
+    );
+
+    loginBtn.disabled = false;
+
+    sessionStorage.setItem("jamia_selected_role", role);
+  }
+
+  supervisorBtn.addEventListener("click", () => {
+    chooseRole("supervisor");
+  });
+
+  teacherBtn.addEventListener("click", () => {
+    chooseRole("teacher");
+  });
+
 </script>
+
 <script src="app.js"></script>
+
 </body>
 </html>
