@@ -1,4 +1,5 @@
-/* Jamia Hifz/Nazra Management — Supabase client */
+
+/* Jamia Hifz/Nazra Management — Supabase */
 (() => {
 "use strict";
 
@@ -45,7 +46,6 @@ const setOptions = (id,rows,first="کلاس منتخب کریں") => {
   if(!el)return;
 
   const old=el.value;
-
   el.innerHTML=`<option value="">${first}</option>`+
     rows.map(x=>`<option value="${esc(x.id)}">${esc(x.name)}</option>`).join("");
 
@@ -59,13 +59,12 @@ const classById = id => assignedClass(id);
 const rollOf = s =>
   students
     .filter(x=>x.class_id===s.class_id)
-    .sort((a,b)=>a.created_at.localeCompare(b.created_at))
+    .sort((a,b)=>(a.created_at||"").localeCompare(b.created_at||""))
     .findIndex(x=>x.id===s.id)+1;
 
 async function init(){
   if(!window.supabase || !KEY || KEY.includes("PASTE_")){
-    $("loginMessage").textContent=
-      "index.html میں Supabase Publishable/anon key درج کریں۔";
+    $("loginMessage").textContent="Supabase کی Publishable Key درج کریں۔";
     show("loginMessage");
     return;
   }
@@ -79,7 +78,6 @@ async function init(){
   });
 
   $("loginBtn").onclick=login;
-  $("logoutBtn").onclick=logout;
   $("logoutBtnMain").onclick=logout;
   $("pendingLogout").onclick=logout;
 
@@ -109,6 +107,14 @@ async function init(){
 }
 
 async function login(){
+  const selected=sessionStorage.getItem("jamia_selected_role");
+
+  if(!selected){
+    $("loginMessage").textContent="پہلے نگران یا استاد منتخب کریں۔";
+    show("loginMessage");
+    return;
+  }
+
   try{
     await q(sb.auth.signInWithOAuth({
       provider:"google",
@@ -120,6 +126,7 @@ async function login(){
 async function logout(){
   try{
     if(sb)await q(sb.auth.signOut());
+    sessionStorage.removeItem("jamia_selected_role");
     resetUI();
   }catch(e){fail(e);}
 }
@@ -134,8 +141,10 @@ function resetUI(){
   show("loginView");
   show("pendingView",false);
   show("appView",false);
-  show("userBar",false);
+
+  if($("loginBtn"))$("loginBtn").disabled=true;
 }
+
 async function boot(u){
   user=u;
 
@@ -151,19 +160,28 @@ async function boot(u){
       return;
     }
 
+    const selected=sessionStorage.getItem("jamia_selected_role");
+    const actualRole=isAdmin()?"supervisor":"teacher";
+
+    if(selected && selected!==actualRole){
+      await sb.auth.signOut();
+      sessionStorage.removeItem("jamia_selected_role");
+      resetUI();
+      $("loginMessage").textContent=
+        "آپ کے اکاؤنٹ کا کردار منتخب کردہ کردار سے مختلف ہے۔ درست کردار منتخب کریں۔";
+      show("loginMessage");
+      return;
+    }
+
     show("loginView",false);
     show("pendingView",false);
     show("appView");
-    show("userBar");
 
     $("userEmail").textContent=u.email||"";
     $("welcome").textContent=profile.full_name||u.email||"صارف";
-    $("roleLabel").textContent=isAdmin()
-      ?"منتظم / مکمل اختیار"
-      :"استاد";
+    $("roleLabel").textContent=isAdmin()?"نگران / مکمل اختیار":"استاد";
 
     show("adminTab",isAdmin());
-
     $("todayLabel").textContent=today();
 
     await loadData();
@@ -233,9 +251,6 @@ async function loadData(){
   if(isAdmin())await renderAdmin();
 }
 
-/* درست شدہ ٹیب نیویگیشن:
-   انتظامیہ کا بٹن adminTab ہے،
-   جبکہ اصل پینل adminTabPanel ہے۔ */
 function switchTab(name){
   const panels={
     dashboard:"dashboardTab",
@@ -254,7 +269,6 @@ function switchTab(name){
   });
 
   if(name==="diary")renderDiary();
-
   if(name==="admin"&&isAdmin())renderAdmin();
 }
 
@@ -273,9 +287,7 @@ function renderDashboard(){
   $("classCards").innerHTML=classes.map(c=>
     `<div class="card">
       <b>${esc(c.name)}</b>
-      <div class="muted">
-        ${students.filter(s=>s.class_id===c.id).length} طلبہ
-      </div>
+      <div class="muted">${students.filter(s=>s.class_id===c.id).length} طلبہ</div>
     </div>`
   ).join("")||"ابھی کوئی کلاس الاٹ نہیں۔";
 }
@@ -306,7 +318,6 @@ function renderStudents(){
 
 async function addStudent(){
   const cid=$("studentFilter").value||$("diaryClass").value;
-
   if(!cid)return toast("پہلے کلاس منتخب کریں۔",true);
 
   const name=prompt("طالب علم کا نام:");
@@ -326,9 +337,9 @@ async function addStudent(){
 
     await loadData();
     toast("طالب علم شامل ہوگیا۔");
-
   }catch(e){fail(e);}
 }
+
 function renderDiary(){
   if(!$("diaryDate").value)$("diaryDate").value=today();
 
@@ -392,7 +403,6 @@ async function saveDiary(){
       );
 
       const vals={};
-
       card.querySelectorAll("[data-key]").forEach(el=>{
         vals[el.dataset.key]=el.value.trim();
       });
@@ -400,7 +410,7 @@ async function saveDiary(){
       if(existing&&existing.created_by!==user.id&&!isAdmin())continue;
 
       if(!vals.lesson||!vals.sabqi||!vals.manzil){
-        throw new Error("ہر طالب علم کے لیے سبق، سبقی اور منزل لازمی درج کریں۔");
+        throw new Error("ہر طالب علم کے لیے سبق، سبقی اور منزل درج کریں۔");
       }
 
       const row={
@@ -421,13 +431,11 @@ async function saveDiary(){
 
     await loadData();
     toast("روزانہ ریکارڈ محفوظ ہوگیا۔");
-
   }catch(e){fail(e);}
 }
 
 async function loadRecordStudents(){
   const cid=$("recordClass").value;
-
   setOptions(
     "recordStudent",
     students.filter(s=>s.class_id===cid),
@@ -448,7 +456,6 @@ function showRecords(){
 
   $("recordResults").innerHTML=lastCsv.map(r=>{
     const s=studentById(r.student_id);
-
     return `
       <div class="card">
         <b>${esc(s?.name||"")}</b> · ${esc(r.record_date)}
@@ -460,7 +467,6 @@ function showRecords(){
 
 function exportCsv(){
   const rows=lastCsv.length?lastCsv:records;
-
   const cols=[
     "record_date","student_id","attendance","lesson",
     "lesson_quality","sabqi","sabqi_quality",
@@ -475,29 +481,23 @@ function exportCsv(){
   ].join("\n");
 
   const a=document.createElement("a");
-
   a.href=window.URL.createObjectURL(
     new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"})
   );
-
   a.download="jamia-records.csv";
   a.click();
-
   window.URL.revokeObjectURL(a.href);
 }
 
 async function createClass(){
   const name=$("newClassName").value.trim();
-
   if(!name)return toast("کلاس کا نام لکھیں۔",true);
 
   try{
     await q(sb.from("classes").insert({name}));
-
     $("newClassName").value="";
     await loadData();
     toast("کلاس بن گئی۔");
-
   }catch(e){fail(e);}
 }
 
@@ -544,7 +544,7 @@ async function renderAdmin(){
           ).join("")}
         </select>
         <button data-assign="${c.id}">مقرر کریں</button>
-        <button class="secondary" data-unassign="${c.id}">اس کلاس کی تمام اسائنمنٹس ختم کریں</button>
+        <button class="secondary-btn" data-unassign="${c.id}">اس کلاس کی تمام اسائنمنٹس ختم کریں</button>
       </div>`;
   }).join("");
 
@@ -559,13 +559,9 @@ async function renderAdmin(){
 
 async function toggleTeacher(id,p){
   try{
-    await q(
-      sb.from("profiles").update({active:!p.active}).eq("id",id)
-    );
-
+    await q(sb.from("profiles").update({active:!p.active}).eq("id",id));
     await renderAdmin();
     toast("استاد کی حیثیت تبدیل ہوگئی۔");
-
   }catch(e){fail(e);}
 }
 
@@ -587,7 +583,6 @@ async function assignTeacher(classId){
     await loadData();
     await renderAdmin();
     toast("کلاس استاد کو الاٹ ہوگئی۔");
-
   }catch(e){fail(e);}
 }
 
@@ -595,34 +590,14 @@ async function unassignClass(classId){
   if(!confirm("کیا اس کلاس کے تمام اساتذہ کی اسائنمنٹ ختم کرنی ہے؟"))return;
 
   try{
-    await q(
-      sb.from("class_teachers").delete().eq("class_id",classId)
-    );
-
+    await q(sb.from("class_teachers").delete().eq("class_id",classId));
     await loadData();
     await renderAdmin();
     toast("اسائنمنٹ ختم ہوگئی۔");
-
   }catch(e){fail(e);}
 }
 
-/* PDF.js compatibility adapter */
 window.JamiaApp={
-  get app(){
-    return {
-      db:{
-        records:Object.fromEntries(
-          records.map(r=>[
-            r.record_date,
-            {
-              ...(this.db?.records?.[r.record_date]||{}),
-              [r.student_id]:r
-            }
-          ])
-        )
-      }
-    };
-  },
   getFilteredRecords:()=>records,
   studentById,
   classById,
