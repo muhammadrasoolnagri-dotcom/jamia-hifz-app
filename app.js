@@ -90,10 +90,10 @@ async function init(){
   $("createClassBtn").onclick=createClass;
   $("showRecords").onclick=showRecords;
   $("exportPdf").onclick=exportPdf;
-  $("studentFilter").onchange=renderStudentsloadData
-  $("studentSearch").oninput=renderStudentsloadData
-  $("diaryClass").onchange=renderDiaryl
-  $("recordClass").onchange=loadRecordStudentsl
+ $("studentFilter").onchange=renderStudents;
+$("studentSearch").oninput=renderStudents;
+$("diaryClass").onchange=renderDiary;
+$("recordClass").onchange=loadRecordStudents;
 
   const {data:{session}}=await sb.auth.getSession();
 
