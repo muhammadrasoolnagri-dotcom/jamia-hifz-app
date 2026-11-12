@@ -95,15 +95,20 @@ $("studentSearch").oninput=renderStudents;
 $("diaryClass").onchange=renderDiary;
 $("recordClass").onchange=loadRecordStudents;
 
-  const {data:{session}}=await sb.auth.getSession();
+   const {data:{session}}=await sb.auth.getSession();
 
   if(session)await boot(session.user);
 
-  sb.auth.onAuthStateChange((_event,session)=>{
-    if(session)boot(session.user).catch(fail);
-    else resetUI();
+  sb.auth.onAuthStateChange((event,session)=>{
+    if(event==="SIGNED_OUT"){
+      resetUI();
+      return;
+    }
+
+    if(event==="SIGNED_IN" && session){
+      boot(session.user).catch(fail);
+    }
   });
-}
 
 async function login(){
   const selected=sessionStorage.getItem("jamia_selected_role");
