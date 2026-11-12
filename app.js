@@ -89,12 +89,11 @@ async function init(){
   $("saveDiary").onclick=saveDiary;
   $("createClassBtn").onclick=createClass;
   $("showRecords").onclick=showRecords;
-  $("exportCsv").onclick=exportCsv;
-
-  $("studentFilter").onchange=renderStudents;
-  $("studentSearch").oninput=renderStudents;
-  $("diaryClass").onchange=renderDiary;
-  $("recordClass").onchange=loadRecordStudents;
+  $("exportPdf").onclick=exportPdf;
+  $("studentFilter").onchange=renderStudentsloadData
+  $("studentSearch").oninput=renderStudentsloadData
+  $("diaryClass").onchange=renderDiaryl
+  $("recordClass").onchange=loadRecordStudentsl
 
   const {data:{session}}=await sb.auth.getSession();
 
@@ -243,7 +242,8 @@ async function loadData(){
   setOptions("studentFilter",classes);
   setOptions("diaryClass",classes);
   setOptions("recordClass",classes);
-
+if(!$("recordDate").value)$("recordDate").value=today();
+await loadRecordStudents();
   renderDashboard();
   renderStudents();
   renderDiary();
