@@ -109,7 +109,7 @@ $("recordClass").onchange=loadRecordStudents;
       boot(session.user).catch(fail);
     }
   });
-    };
+    }
 
 async function login(){
   const selected=sessionStorage.getItem("jamia_selected_role");
