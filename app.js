@@ -443,6 +443,7 @@ async function loadRecordStudents(){
   );
 }
 
+
 function showRecords(){
   const date=$("recordDate").value;
   const cid=$("recordClass").value;
@@ -456,37 +457,158 @@ function showRecords(){
 
   $("recordResults").innerHTML=lastCsv.map(r=>{
     const s=studentById(r.student_id);
+
     return `
       <div class="card">
-        <b>${esc(s?.name||"")}</b> · ${esc(r.record_date)}
-        <p>سبق: ${esc(r.lesson)} | سبقی: ${esc(r.sabqi)} | منزل: ${esc(r.manzil)}</p>
-        <div class="muted">${esc(r.note||"")}</div>
+        <b>${esc(s?.name||"")} — رول ${s?rollOf(s):"-"}</b>
+        <div class="muted">${esc(classById(r.class_id)?.name||"")} · ${esc(r.record_date)}</div>
+
+        <p>حاضری: ${esc(r.attendance||"—")}</p>
+
+        <p>
+          سبق: ${esc(r.lesson||"—")}
+          <strong> | معیار: ${esc(r.lesson_quality||"درج نہیں")}</strong>
+        </p>
+
+        <p>
+          سبقی: ${esc(r.sabqi||"—")}
+          <strong> | معیار: ${esc(r.sabqi_quality||"درج نہیں")}</strong>
+        </p>
+
+        <p>
+          منزل: ${esc(r.manzil||"—")}
+          <strong> | معیار: ${esc(r.manzil_quality||"درج نہیں")}</strong>
+        </p>
+
+        <div class="muted">نوٹ: ${esc(r.note||"—")}</div>
       </div>`;
   }).join("")||"کوئی ریکارڈ نہیں ملا۔";
 }
 
-function exportCsv(){
-  const rows=lastCsv.length?lastCsv:records;
-  const cols=[
-    "record_date","student_id","attendance","lesson",
-    "lesson_quality","sabqi","sabqi_quality",
-    "manzil","manzil_quality","note"
-  ];
+function exportPdf(){
+  const rows=lastCsv;
 
-  const csv=[
-    cols.join(","),
-    ...rows.map(r=>
-      cols.map(k=>'"'+String(r[k]??"").replace(/"/g,'""')+'"').join(",")
-    )
-  ].join("\n");
+  if(!rows.length){
+    toast("پہلے ریکارڈ دکھائیں، پھر PDF بنائیں۔",true);
+    return;
+  }
 
-  const a=document.createElement("a");
-  a.href=window.URL.createObjectURL(
-    new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"})
-  );
-  a.download="jamia-records.csv";
-  a.click();
-  window.URL.revokeObjectURL(a.href);
+  const win=window.open("","_blank");
+
+  if(!win){
+    toast("PDF بنانے کے لیے Pop-ups کی اجازت دیں۔",true);
+    return;
+  }
+
+  const body=rows.map(r=>{
+    const s=studentById(r.student_id);
+    const cls=classById(r.class_id);
+
+    return `
+      <tr>
+        <td>${esc(r.record_date)}</td>
+        <td>${esc(cls?.name||"")}</td>
+        <td>${esc(s?rollOf(s):"-")}</td>
+        <td>${esc(s?.name||"")}</td>
+        <td>${esc(r.attendance||"—")}</td>
+        <td>${esc(r.lesson||"—")}<br><small>${esc(r.lesson_quality||"معیار درج نہیں")}</small></td>
+        <td>${esc(r.sabqi||"—")}<br><small>${esc(r.sabqi_quality||"معیار درج نہیں")}</small></td>
+        <td>${esc(r.manzil||"—")}<br><small>${esc(r.manzil_quality||"معیار درج نہیں")}</small></td>
+        <td>${esc(r.note||"—")}</td>
+      </tr>`;
+  }).join("");
+
+  win.document.open();
+
+  win.document.write(`
+    <!doctype html>
+    <html lang="ur" dir="rtl">
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <title>جامعہ اشرف العلوم — طلبہ کے ریکارڈز</title>
+
+      <style>
+        body{
+          font-family:Arial,"Noto Nastaliq Urdu",sans-serif;
+          color:#183b30;
+          padding:18px;
+          direction:rtl;
+        }
+
+        h2,p{text-align:center}
+
+        table{
+          width:100%;
+          border-collapse:collapse;
+          font-size:12px;
+        }
+
+        th,td{
+          border:1px solid #65766d;
+          padding:7px;
+          text-align:right;
+          vertical-align:top;
+        }
+
+        th{background:#e8efeb}
+        small{color:#42584e}
+
+        .actions{
+          text-align:center;
+          margin:14px;
+        }
+
+        button{
+          font:inherit;
+          padding:10px 18px;
+        }
+
+        @page{
+          size:landscape;
+          margin:10mm;
+        }
+
+        tr{break-inside:avoid}
+
+        @media print{
+          .actions{display:none}
+          body{padding:0}
+        }
+      </style>
+    </head>
+
+    <body>
+      <h2>جامعہ اشرف العلوم باغبانپورہ رجسٹرڈ</h2>
+      <p>طلبہ کے روزانہ ریکارڈز</p>
+      <p>کل اندراجات: ${rows.length}</p>
+
+      <div class="actions">
+        <button onclick="window.print()">PDF محفوظ کریں / پرنٹ کریں</button>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>تاریخ</th>
+            <th>کلاس</th>
+            <th>رول</th>
+            <th>طالب علم</th>
+            <th>حاضری</th>
+            <th>سبق / معیار</th>
+            <th>سبقی / معیار</th>
+            <th>منزل / معیار</th>
+            <th>نوٹ</th>
+          </tr>
+        </thead>
+
+        <tbody>${body}</tbody>
+      </table>
+    </body>
+    </html>
+  `);
+
+  win.document.close();
 }
 
 async function createClass(){
