@@ -452,6 +452,7 @@ async function loadRecordStudents(){
 }
 
 
+
 function showRecords(){
   const date=$("recordDate").value;
   const cid=$("recordClass").value;
@@ -465,6 +466,7 @@ function showRecords(){
 
   $("recordResults").innerHTML=lastCsv.map(r=>{
     const s=studentById(r.student_id);
+    const phone=(s?.whatsapp_number||"").replace(/\D/g,"");
 
     return `
       <div class="card">
@@ -489,9 +491,62 @@ function showRecords(){
         </p>
 
         <div class="muted">نوٹ: ${esc(r.note||"—")}</div>
+
+        <button
+          type="button"
+          class="primary-btn"
+          data-whatsapp-record="${esc(r.id)}"
+          ${phone.length<10?"disabled":""}
+        >
+          ${phone.length<10?"واٹس ایپ نمبر موجود نہیں":"واٹس ایپ پر ریکارڈ بھیجیں"}
+        </button>
       </div>`;
   }).join("")||"کوئی ریکارڈ نہیں ملا۔";
+
+  document.querySelectorAll("[data-whatsapp-record]").forEach(button=>{
+    button.onclick=()=>{
+      const r=lastCsv.find(x=>x.id===button.dataset.whatsappRecord);
+      if(!r)return;
+
+      const s=studentById(r.student_id);
+      const phone=(s?.whatsapp_number||"").replace(/\D/g,"");
+
+      if(phone.length<10){
+        toast("اس طالب علم کا درست واٹس ایپ نمبر موجود نہیں۔",true);
+        return;
+      }
+
+      const message=
+`السلام علیکم!
+
+طالب علم کا روزانہ تعلیمی ریکارڈ
+
+نام: ${s?.name||"—"}
+والد کا نام: ${s?.father_name||"—"}
+کلاس: ${classById(r.class_id)?.name||"—"}
+تاریخ: ${r.record_date}
+
+حاضری: ${r.attendance||"—"}
+
+سبق: ${r.lesson||"—"}
+سبق کا معیار: ${r.lesson_quality||"درج نہیں"}
+
+سبقی: ${r.sabqi||"—"}
+سبقی کا معیار: ${r.sabqi_quality||"درج نہیں"}
+
+منزل: ${r.manzil||"—"}
+منزل کا معیار: ${r.manzil_quality||"درج نہیں"}
+
+استاد کا نوٹ: ${r.note||"—"}
+
+جامعہ حفظ و ناظرہ ڈیجیٹل مینجمنٹ`;
+
+      const url=`https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+      window.open(url,"_blank");
+    };
+  });
 }
+
 
 function exportPdf(){
   const rows=lastCsv;
