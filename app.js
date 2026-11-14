@@ -396,60 +396,81 @@ function field(label,key,value,enabled){
     </div>`;
 }
 
+
 async function saveDiary(){
-  const cid=$("diaryClass").value;
-  const date=$("diaryDate").value;
+  const cid = $("diaryClass").value;
+  const date = $("diaryDate").value;
 
-  if(!cid||!date)return toast("کلاس اور تاریخ منتخب کریں۔",true);
+  if(!cid || !date){
+    return toast("کلاس اور تاریخ منتخب کریں۔", true);
+  }
 
-  try{
-    for(const card of document.querySelectorAll("#diaryStudents [data-student]")){
-      const sid=card.dataset.student;
+  if(date > today()){
+    return toast("مستقبل کی تاریخ کا ریکارڈ محفوظ نہیں ہو سکتا۔", true);
+  }
 
-      const existing=records.find(r=>
-        r.student_id===sid&&r.record_date===date
-      );
+  let saved = 0;
+  let skipped = 0;
+  let failed = 0;
 
-      const vals={};
-      card.querySelectorAll("[data-key]").forEach(el=>{
-        vals[el.dataset.key]=el.value.trim();
-      });
+  for(const card of document.querySelectorAll("#diaryStudents [data-student]")){
+    const sid = card.dataset.student;
 
-      if(existing&&existing.created_by!==user.id&&!isAdmin())continue;
+    const existing = records.find(r =>
+      r.student_id === sid && r.record_date === date
+    );
 
-      if(!vals.lesson||!vals.sabqi||!vals.manzil){
-        throw new Error("ہر طالب علم کے لیے سبق، سبقی اور منزل درج کریں۔");
-      }
+    const vals = {};
+    card.querySelectorAll("[data-key]").forEach(el => {
+      vals[el.dataset.key] = el.value.trim();
+    });
 
-      const row={
-        student_id:sid,
-        class_id:cid,
-        record_date:date,
-        created_by:existing?.created_by||user.id,
-        ...vals
-      };
-
-      if(existing)row.id=existing.id;
-
-      await q(
-        sb.from("daily_records")
-          .upsert(row,{onConflict:"student_id,record_date"})
-      );
+    if(existing && existing.created_by !== user.id && !isAdmin()){
+      skipped++;
+      continue;
     }
 
+    // نامکمل طالب علم کا ریکارڈ محفوظ نہیں ہوگا
+    if(!vals.lesson || !vals.sabqi || !vals.manzil){
+      skipped++;
+      continue;
+    }
+
+    const row = {
+      student_id: sid,
+      class_id: cid,
+      record_date: date,
+      created_by: existing?.created_by || user.id,
+      ...vals
+    };
+
+    if(existing) row.id = existing.id;
+
+    try{
+      await q(
+        sb.from("daily_records")
+          .upsert(row, {onConflict:"student_id,record_date"})
+      );
+      saved++;
+    }catch(e){
+      console.error(e);
+      failed++;
+    }
+  }
+
+  if(saved > 0){
     await loadData();
-    toast("روزانہ ریکارڈ محفوظ ہوگیا۔");
-  }catch(e){fail(e);}
+  }
+
+  if(failed > 0){
+    toast(`${saved} محفوظ، ${skipped} نامکمل، ${failed} میں خرابی۔`, true);
+  }else if(saved > 0){
+    toast(`${saved} طلبہ کا ریکارڈ محفوظ ہوگیا۔ ${skipped} نامکمل ریکارڈ چھوڑ دیے گئے۔`);
+  }else{
+    toast("کوئی مکمل ریکارڈ نہیں ملا۔", true);
+  }
 }
 
-async function loadRecordStudents(){
-  const cid=$("recordClass").value;
-  setOptions(
-    "recordStudent",
-    students.filter(s=>s.class_id===cid),
-    "تمام طلبہ"
-  );
-}
 
 
 
