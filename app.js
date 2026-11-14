@@ -331,6 +331,7 @@ async function addStudent(){
 
   const admission=prompt("داخلہ نمبر (اختیاری):")||"";
   const father=prompt("والد کا نام (اختیاری):")||"";
+  const whatsapp=prompt("والد یا سرپرست کا واٹس ایپ نمبر، مثلاً 923001234567:")||"";
 
   try{
     await q(sb.from("students").insert({
@@ -338,6 +339,7 @@ async function addStudent(){
       name:name.trim(),
       admission_no:admission.trim(),
       father_name:father.trim(),
+      whatsapp_number:whatsapp.replace(/\D/g,""),
       active:true
     }));
 
